@@ -1,3 +1,4 @@
+// Package httpserver - реализует создание и запуск сервера
 package httpserver
 
 import (

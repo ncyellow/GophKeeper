@@ -1,3 +1,4 @@
+// Package httpserver реализует http обработчики через chi.NewRouter
 package httpserver
 
 import (
@@ -20,7 +21,6 @@ type Handler struct {
 	*chi.Mux
 	store      storage.Storage
 	authorizer *auth.Authorizer
-	conf       *config.Config
 }
 
 func NewRouter(conf *config.Config) chi.Router {
@@ -178,7 +178,11 @@ func (h *Handler) Card() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
 		cardID := chi.URLParam(r, "id")
-		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		if !ok {
+			rw.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 
 		// Запрашиваем инфу по карте
 		targetCard, err := h.store.Card(r.Context(), user.UserID, cardID)
@@ -191,8 +195,8 @@ func (h *Handler) Card() http.HandlerFunc {
 			return
 		}
 
-		result, ok := json.Marshal(targetCard)
-		if ok != nil {
+		result, err := json.Marshal(targetCard)
+		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
 			rw.Write([]byte("invalid serialization"))
 			return
@@ -224,7 +228,11 @@ func (h *Handler) AddCard() http.HandlerFunc {
 			return
 		}
 
-		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		if !ok {
+			rw.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 
 		err = h.store.AddCard(r.Context(), user.UserID, cardData)
 		if err != nil {
@@ -243,7 +251,11 @@ func (h *Handler) DeleteCard() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
 		cardID := chi.URLParam(r, "id")
-		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		if !ok {
+			rw.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 
 		// Удаляем логин
 		err := h.store.DeleteCard(r.Context(), user.UserID, cardID)
@@ -264,7 +276,11 @@ func (h *Handler) Login() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
 		loginID := chi.URLParam(r, "id")
-		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		if !ok {
+			rw.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 
 		// Запрашиваем инфу по логину
 		targetLogin, err := h.store.Login(r.Context(), user.UserID, loginID)
@@ -277,8 +293,8 @@ func (h *Handler) Login() http.HandlerFunc {
 			return
 		}
 
-		result, ok := json.Marshal(targetLogin)
-		if ok != nil {
+		result, err := json.Marshal(targetLogin)
+		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
 			rw.Write([]byte("invalid serialization"))
 			return
@@ -310,7 +326,11 @@ func (h *Handler) AddLogin() http.HandlerFunc {
 			return
 		}
 
-		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		if !ok {
+			rw.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 
 		err = h.store.AddLogin(r.Context(), user.UserID, loginData)
 		if err != nil {
@@ -329,7 +349,11 @@ func (h *Handler) DeleteLogin() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
 		loginID := chi.URLParam(r, "id")
-		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		if !ok {
+			rw.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 
 		// Удаляем логин
 		err := h.store.DeleteLogin(r.Context(), user.UserID, loginID)
@@ -349,7 +373,11 @@ func (h *Handler) Text() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
 		textID := chi.URLParam(r, "id")
-		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		if !ok {
+			rw.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 
 		// Запрашиваем инфу по текстовым данным
 		targetText, err := h.store.Text(r.Context(), user.UserID, textID)
@@ -362,8 +390,8 @@ func (h *Handler) Text() http.HandlerFunc {
 			return
 		}
 
-		result, ok := json.Marshal(targetText)
-		if ok != nil {
+		result, err := json.Marshal(targetText)
+		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
 			rw.Write([]byte("invalid serialization"))
 			return
@@ -396,7 +424,11 @@ func (h *Handler) AddText() http.HandlerFunc {
 			return
 		}
 
-		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		if !ok {
+			rw.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 
 		err = h.store.AddText(r.Context(), user.UserID, textData)
 		if err != nil {
@@ -415,7 +447,11 @@ func (h *Handler) DeleteText() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
 		textID := chi.URLParam(r, "id")
-		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		if !ok {
+			rw.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 
 		// Удаляем текст
 		err := h.store.DeleteText(r.Context(), user.UserID, textID)
@@ -435,7 +471,11 @@ func (h *Handler) Binary() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
 		binID := chi.URLParam(r, "id")
-		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		if !ok {
+			rw.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 
 		// Запрашиваем инфу по бинарным
 		targetBin, err := h.store.Binary(r.Context(), user.UserID, binID)
@@ -448,8 +488,8 @@ func (h *Handler) Binary() http.HandlerFunc {
 			return
 		}
 
-		result, ok := json.Marshal(targetBin)
-		if ok != nil {
+		result, err := json.Marshal(targetBin)
+		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
 			rw.Write([]byte("invalid serialization"))
 			return
@@ -481,7 +521,11 @@ func (h *Handler) AddBinary() http.HandlerFunc {
 			return
 		}
 
-		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		if !ok {
+			rw.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 
 		// Запрашиваем инфу по бинарным
 		err = h.store.AddBinary(r.Context(), user.UserID, binData)
@@ -501,7 +545,11 @@ func (h *Handler) DeleteBinary() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
 		binID := chi.URLParam(r, "id")
-		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
+		if !ok {
+			rw.WriteHeader(http.StatusUnauthorized)
+			return
+		}
 
 		// Удаляем бинарь
 		err := h.store.DeleteBinary(r.Context(), user.UserID, binID)

@@ -1,3 +1,4 @@
+// Package config реализует необходимые структуры и парсинг конфигурации сервера
 package config
 
 import (

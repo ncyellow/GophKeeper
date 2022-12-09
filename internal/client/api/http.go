@@ -1,3 +1,4 @@
+// Package api модуль реализует http client для взаимодействия с сервером
 package api
 
 import (
@@ -27,14 +28,14 @@ var (
 
 type HTTPSender struct {
 	Client    *http.Client
-	Url       string
+	URL       string
 	AuthToken *string
 }
 
 func NewHTTPSender() *HTTPSender {
 	return &HTTPSender{
 		Client:    &http.Client{},
-		Url:       "http://localhost:8085",
+		URL:       "http://localhost:8085",
 		AuthToken: nil,
 	}
 }
@@ -50,7 +51,7 @@ func (s *HTTPSender) Register(login string, pwd string) error {
 		return ErrSerialization
 	}
 
-	req, err := http.NewRequest("POST", s.Url+"/api/register", bytes.NewBuffer(result))
+	req, err := http.NewRequest("POST", s.URL+"/api/register", bytes.NewBuffer(result))
 	if err != nil {
 		return ErrRequestPrepare
 	}
@@ -86,7 +87,7 @@ func (s *HTTPSender) SignIn(login string, pwd string) error {
 		return ErrSerialization
 	}
 
-	req, err := http.NewRequest("POST", s.Url+"/api/signin", bytes.NewBuffer(result))
+	req, err := http.NewRequest("POST", s.URL+"/api/signin", bytes.NewBuffer(result))
 	if err != nil {
 		return ErrRequestPrepare
 	}
@@ -222,7 +223,7 @@ func (s *HTTPSender) Add(data []byte, urlSuffix string) error {
 		return ErrAuthRequire
 	}
 
-	req, err := http.NewRequest("POST", s.Url+urlSuffix, bytes.NewBuffer(data))
+	req, err := http.NewRequest("POST", s.URL+urlSuffix, bytes.NewBuffer(data))
 	if err != nil {
 		return ErrRequestPrepare
 	}
@@ -248,7 +249,7 @@ func (s *HTTPSender) Read(textID string, urlSuffix string) ([]byte, error) {
 		return nil, ErrAuthRequire
 	}
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/%s", s.Url, urlSuffix, textID), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/%s", s.URL, urlSuffix, textID), nil)
 	if err != nil {
 		return nil, ErrRequestPrepare
 	}
@@ -281,7 +282,7 @@ func (s *HTTPSender) Del(binID string, urlSuffix string) error {
 		return ErrAuthRequire
 	}
 
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/%s/%s", s.Url, urlSuffix, binID), nil)
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/%s/%s", s.URL, urlSuffix, binID), nil)
 	if err != nil {
 		return ErrRequestPrepare
 	}

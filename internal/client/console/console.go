@@ -1,3 +1,4 @@
+// Package console реализует модуль для парсинга ввода консоли
 package console
 
 import (
