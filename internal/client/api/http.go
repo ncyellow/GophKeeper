@@ -12,17 +12,17 @@ import (
 )
 
 var (
-	InternalServerError    = errors.New("cервер недоступен, попробуйте позднее")
-	ServerTimoutError      = errors.New("cервер недоступен, попробуйте позднее")
-	SerializationError     = errors.New("ошибка сериализации")
-	DeserializationError   = errors.New("ошибка десериализации")
-	RequestPrepareError    = errors.New("не удалось подготовить http запрос")
-	UserAlreadyExistsError = errors.New("уже зарегистрирован пользователь с таким логином")
-	UserNotFoundError      = errors.New("пользователь с таким логином не найден")
-	AuthRequireError       = errors.New("необходим авторизоваться")
+	ErrInternalServer    = errors.New("cервер недоступен, попробуйте позднее")
+	ErrServerTimout      = errors.New("cервер недоступен, попробуйте позднее")
+	ErrSerialization     = errors.New("ошибка сериализации")
+	ErrDeserialization   = errors.New("ошибка десериализации")
+	ErrRequestPrepare    = errors.New("не удалось подготовить http запрос")
+	ErrUserAlreadyExists = errors.New("уже зарегистрирован пользователь с таким логином")
+	ErrUserNotFound      = errors.New("пользователь с таким логином не найден")
+	ErrAuthRequire       = errors.New("необходим авторизоваться")
 
-	AlreadyExistsError = errors.New("ID с таким идентификатором уже зарегистрирован")
-	NotFoundError      = errors.New("не найдена запись с таким идентификатором")
+	ErrAlreadyExists = errors.New("ID с таким идентификатором уже зарегистрирован")
+	ErrNotFound      = errors.New("не найдена запись с таким идентификатором")
 )
 
 type HTTPSender struct {
@@ -47,25 +47,25 @@ func (s *HTTPSender) Register(login string, pwd string) error {
 
 	result, ok := json.Marshal(user)
 	if ok != nil {
-		return SerializationError
+		return ErrSerialization
 	}
 
 	req, err := http.NewRequest("POST", s.Url+"/api/register", bytes.NewBuffer(result))
 	if err != nil {
-		return RequestPrepareError
+		return ErrRequestPrepare
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return ServerTimoutError
+		return ErrServerTimout
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusConflict {
-		return UserAlreadyExistsError
+		return ErrUserAlreadyExists
 	} else if resp.StatusCode != http.StatusOK {
-		return InternalServerError
+		return ErrInternalServer
 	}
 
 	authToken := resp.Header.Get("Authorization")
@@ -83,23 +83,23 @@ func (s *HTTPSender) SignIn(login string, pwd string) error {
 
 	result, ok := json.Marshal(user)
 	if ok != nil {
-		return SerializationError
+		return ErrSerialization
 	}
 
 	req, err := http.NewRequest("POST", s.Url+"/api/signin", bytes.NewBuffer(result))
 	if err != nil {
-		return RequestPrepareError
+		return ErrRequestPrepare
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return ServerTimoutError
+		return ErrServerTimout
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return UserNotFoundError
+		return ErrUserNotFound
 	}
 
 	authToken := resp.Header.Get("Authorization")
@@ -110,7 +110,7 @@ func (s *HTTPSender) SignIn(login string, pwd string) error {
 func (s *HTTPSender) AddCard(card *models.Card) error {
 	data, ok := json.Marshal(card)
 	if ok != nil {
-		return SerializationError
+		return ErrSerialization
 	}
 	return s.Add(data, "/api/card")
 }
@@ -125,7 +125,7 @@ func (s *HTTPSender) Card(cardID string) (*models.Card, error) {
 	err = json.Unmarshal(data, &card)
 
 	if err != nil {
-		return nil, DeserializationError
+		return nil, ErrDeserialization
 	}
 	return &card, nil
 }
@@ -137,7 +137,7 @@ func (s *HTTPSender) DelCard(cardID string) error {
 func (s *HTTPSender) AddLogin(login *models.Login) error {
 	data, ok := json.Marshal(login)
 	if ok != nil {
-		return SerializationError
+		return ErrSerialization
 	}
 	return s.Add(data, "/api/login")
 }
@@ -153,7 +153,7 @@ func (s *HTTPSender) Login(loginID string) (*models.Login, error) {
 	err = json.Unmarshal(data, &login)
 
 	if err != nil {
-		return nil, DeserializationError
+		return nil, ErrDeserialization
 	}
 	return &login, nil
 }
@@ -166,7 +166,7 @@ func (s *HTTPSender) AddText(text *models.Text) error {
 
 	data, ok := json.Marshal(text)
 	if ok != nil {
-		return SerializationError
+		return ErrSerialization
 	}
 	return s.Add(data, "api/txt")
 }
@@ -181,7 +181,7 @@ func (s *HTTPSender) Text(textID string) (*models.Text, error) {
 	var text models.Text
 	err = json.Unmarshal(data, &text)
 	if err != nil {
-		return nil, DeserializationError
+		return nil, ErrDeserialization
 	}
 	return &text, nil
 }
@@ -193,7 +193,7 @@ func (s *HTTPSender) DelText(textID string) error {
 func (s *HTTPSender) AddBin(binary *models.Binary) error {
 	data, ok := json.Marshal(binary)
 	if ok != nil {
-		return SerializationError
+		return ErrSerialization
 	}
 	return s.Add(data, "api/bin")
 }
@@ -208,7 +208,7 @@ func (s *HTTPSender) Bin(binID string) (*models.Binary, error) {
 	err = json.Unmarshal(data, &binary)
 
 	if err != nil {
-		return nil, DeserializationError
+		return nil, ErrDeserialization
 	}
 	return &binary, nil
 }
@@ -219,83 +219,83 @@ func (s *HTTPSender) DelBin(binID string) error {
 
 func (s *HTTPSender) Add(data []byte, urlSuffix string) error {
 	if s.AuthToken == nil {
-		return AuthRequireError
+		return ErrAuthRequire
 	}
 
 	req, err := http.NewRequest("POST", s.Url+urlSuffix, bytes.NewBuffer(data))
 	if err != nil {
-		return RequestPrepareError
+		return ErrRequestPrepare
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", *s.AuthToken)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return ServerTimoutError
+		return ErrServerTimout
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusConflict {
-		return AlreadyExistsError
+		return ErrAlreadyExists
 	} else if resp.StatusCode != http.StatusOK {
-		return InternalServerError
+		return ErrInternalServer
 	}
 	return nil
 }
 
 func (s *HTTPSender) Read(textID string, urlSuffix string) ([]byte, error) {
 	if s.AuthToken == nil {
-		return nil, AuthRequireError
+		return nil, ErrAuthRequire
 	}
 
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/%s", s.Url, urlSuffix, textID), nil)
 	if err != nil {
-		return nil, RequestPrepareError
+		return nil, ErrRequestPrepare
 	}
 	req.Header.Set("Authorization", *s.AuthToken)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return nil, ServerTimoutError
+		return nil, ErrServerTimout
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode == http.StatusNotFound {
-		return nil, NotFoundError
+		return nil, ErrNotFound
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, InternalServerError
+		return nil, ErrInternalServer
 	}
 
 	reqBody, err := io.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return nil, SerializationError
+		return nil, ErrSerialization
 	}
 	return reqBody, nil
 }
 
 func (s *HTTPSender) Del(binID string, urlSuffix string) error {
 	if s.AuthToken == nil {
-		return AuthRequireError
+		return ErrAuthRequire
 	}
 
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/%s/%s", s.Url, urlSuffix, binID), nil)
 	if err != nil {
-		return RequestPrepareError
+		return ErrRequestPrepare
 	}
 
 	req.Header.Set("Authorization", *s.AuthToken)
 
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
-		return ServerTimoutError
+		return ErrServerTimout
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return InternalServerError
+		return ErrInternalServer
 	}
 	return nil
 }
