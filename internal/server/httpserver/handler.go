@@ -13,6 +13,7 @@ import (
 	"github.com/jackc/pgx/v4"
 	"github.com/ncyellow/GophKeeper/internal/models"
 	"github.com/ncyellow/GophKeeper/internal/server/auth"
+	"github.com/ncyellow/GophKeeper/internal/server/auth/jwt"
 	"github.com/ncyellow/GophKeeper/internal/server/config"
 	"github.com/ncyellow/GophKeeper/internal/server/storage"
 )
@@ -20,16 +21,16 @@ import (
 type Handler struct {
 	*chi.Mux
 	store      storage.Storage
-	authorizer *auth.Authorizer
+	authorizer *jwt.Authorizer
 }
 
-func NewRouter(conf *config.Config, store storage.Storage) chi.Router {
+func NewRouter(conf *config.Config, store storage.Storage, parser jwt.Parser) chi.Router {
 
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Logger)
 
-	authorizer := &auth.Authorizer{
+	authorizer := &jwt.Authorizer{
 		Store:      store,
 		SigningKey: []byte(conf.SigningKey),
 	}
@@ -46,7 +47,7 @@ func NewRouter(conf *config.Config, store storage.Storage) chi.Router {
 	})
 
 	r.Group(func(r chi.Router) {
-		r.Use(auth.Auth(store, conf))
+		r.Use(auth.Auth(store, conf, parser))
 		// Тут будут обработчики ^_^
 
 		// API для работы с банковскими картами

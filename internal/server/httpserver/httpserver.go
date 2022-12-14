@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/ncyellow/GophKeeper/internal/server/auth/jwt"
 	"github.com/ncyellow/GophKeeper/internal/server/config"
 	"github.com/ncyellow/GophKeeper/internal/server/storage"
 	"github.com/rs/zerolog/log"
@@ -19,7 +20,7 @@ type HTTPServer struct {
 
 func (s *HTTPServer) Run() {
 	store := storage.NewPgStorage(s.Conf)
-	router := NewRouter(s.Conf, store)
+	router := NewRouter(s.Conf, store, &jwt.DefaultParser{})
 
 	srv := http.Server{
 		Addr:    s.Conf.Address,

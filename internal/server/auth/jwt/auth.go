@@ -1,5 +1,5 @@
-// Package auth Предоставляет возможность функционал JWT аутентификации + middleware для его работы
-package auth
+// Package jwt предоставляет возможность функционал JWT аутентификации
+package jwt
 
 import (
 	"context"
@@ -30,6 +30,10 @@ type Authorizer struct {
 	SigningKey []byte
 }
 
+// DefaultParser дефолтный парсер токенов jwt
+type DefaultParser struct {
+}
+
 // SignIn - проверяет есть ли такой пользователь в базе и генерируем токен
 func (a *Authorizer) SignIn(ctx context.Context, user *models.User) (string, error) {
 	expirationDuration := time.Hour * 24
@@ -53,7 +57,7 @@ func (a *Authorizer) SignIn(ctx context.Context, user *models.User) (string, err
 }
 
 // ParseToken - проверяем является ли токен корректным, если да возвращаем логин данного пользователя
-func ParseToken(accessToken string, signingKey []byte) (string, error) {
+func (p *DefaultParser) ParseToken(accessToken string, signingKey []byte) (string, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("signing error")
@@ -69,11 +73,4 @@ func ParseToken(accessToken string, signingKey []byte) (string, error) {
 	}
 
 	return "", ErrInvalidToken
-}
-
-// HashPWD - хеширования пароля
-func HashPWD(password string) string {
-	pwd := sha1.New()
-	pwd.Write([]byte(password))
-	return fmt.Sprintf("%x", pwd.Sum(nil))
 }

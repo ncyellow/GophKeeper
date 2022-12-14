@@ -2,7 +2,9 @@ package httpserver
 
 import (
 	"bytes"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -11,7 +13,8 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/ncyellow/GophKeeper/internal/models"
 	"github.com/ncyellow/GophKeeper/internal/server/config"
-	mock_storage "github.com/ncyellow/GophKeeper/internal/server/mocks"
+	mock_jwt "github.com/ncyellow/GophKeeper/internal/server/mocks/auth/jwt"
+	mock_storage "github.com/ncyellow/GophKeeper/internal/server/mocks/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
@@ -33,8 +36,9 @@ type tests struct {
 
 type HandlersSuite struct {
 	suite.Suite
-	store *mock_storage.MockStorage
-	ts    *httptest.Server
+	store  *mock_storage.MockStorage
+	parser *mock_jwt.MockParser
+	ts     *httptest.Server
 }
 
 // SetupSuite перед началом теста стартуем новый сервер httptest.Server делаем так, чтобы тестировать каждый
@@ -48,7 +52,10 @@ func (suite *HandlersSuite) SetupTest() {
 	store := mock_storage.NewMockStorage(ctrl)
 	suite.store = store
 
-	r := NewRouter(&conf, store)
+	parser := mock_jwt.NewMockParser(ctrl)
+	suite.parser = parser
+
+	r := NewRouter(&conf, store, parser)
 	suite.ts = httptest.NewServer(r)
 }
 
@@ -218,6 +225,47 @@ func (suite *HandlersSuite) TestSignIn() {
 			want: want{
 				statusCode: http.StatusUnauthorized,
 				body:       "invalid login or password",
+			},
+		},
+	}
+	suite.runTableTests(testData)
+}
+
+// TestRegisterHandler основные тесты по регистрации
+func (suite *HandlersSuite) TestCard() {
+
+	userID := 1
+	defaultCard := &models.Card{
+		UserID:   userID,
+		ID:       "test_id",
+		FIO:      "fio",
+		Number:   "number",
+		Date:     "date",
+		CVV:      "cvv",
+		MetaInfo: "metainfo",
+	}
+	byteCard, _ := json.Marshal(defaultCard)
+
+	testData := []tests{
+		{
+			name:        "read card successfully",
+			request:     fmt.Sprintf("/api/card/%d", userID),
+			requestType: "GET",
+			contentType: "",
+			body:        nil,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: int64(userID),
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return("login", nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), gomock.Any()).Return(user, nil)
+				suite.store.EXPECT().Card(gomock.Any(), user.UserID, fmt.Sprintf("%d", userID)).
+					Return(defaultCard, nil)
+			},
+			want: want{
+				statusCode: http.StatusOK,
+				body:       string(byteCard),
 			},
 		},
 	}
