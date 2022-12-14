@@ -12,6 +12,7 @@ import (
 	"golang.org/x/term"
 )
 
+// credentials - читает с консоли логин пароль. Если все ок, то error будет nil
 func credentials() (string, string, error) {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -31,6 +32,7 @@ func credentials() (string, string, error) {
 	return strings.TrimSpace(username), strings.TrimSpace(password), nil
 }
 
+// readCard - читает с консоли данные карты. Если все ок, то error будет nil
 func readCard() (*models.Card, error) {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -80,6 +82,7 @@ func readCard() (*models.Card, error) {
 	}, nil
 }
 
+// readLogin - читает с консоли данные по логину. Если все ок, то error будет nil
 func readLogin() (*models.Login, error) {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -116,6 +119,7 @@ func readLogin() (*models.Login, error) {
 	}, nil
 }
 
+// readText - читает с консоли данные по текстовым данным. Если все ок, то error будет nil
 func readText() (*models.Text, error) {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -144,6 +148,7 @@ func readText() (*models.Text, error) {
 	}, nil
 }
 
+// readText - читает с консоли данные по бинарным данным. Если все ок, то error будет nil
 func readBinary() (*models.Binary, error) {
 	reader := bufio.NewReader(os.Stdin)
 

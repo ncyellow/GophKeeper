@@ -23,13 +23,12 @@ type Handler struct {
 	authorizer *auth.Authorizer
 }
 
-func NewRouter(conf *config.Config) chi.Router {
+func NewRouter(conf *config.Config, store storage.Storage) chi.Router {
 
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Logger)
 
-	store := storage.NewPgStorage(conf)
 	authorizer := &auth.Authorizer{
 		Store:      store,
 		SigningKey: []byte(conf.SigningKey),
@@ -46,8 +45,6 @@ func NewRouter(conf *config.Config) chi.Router {
 		r.Post("/api/signin", handler.SignIn())
 	})
 
-	// Так как я уже руками делал jwt аутентификацию в первом проекте, то копировать сюда не буду.
-	// Подключаю готовую для chi, секрет пока просто забит руками
 	r.Group(func(r chi.Router) {
 		r.Use(auth.Auth(store, conf))
 		// Тут будут обработчики ^_^

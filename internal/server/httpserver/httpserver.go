@@ -9,6 +9,7 @@ import (
 	"syscall"
 
 	"github.com/ncyellow/GophKeeper/internal/server/config"
+	"github.com/ncyellow/GophKeeper/internal/server/storage"
 	"github.com/rs/zerolog/log"
 )
 
@@ -17,7 +18,8 @@ type HTTPServer struct {
 }
 
 func (s *HTTPServer) Run() {
-	router := NewRouter(s.Conf)
+	store := storage.NewPgStorage(s.Conf)
+	router := NewRouter(s.Conf, store)
 
 	srv := http.Server{
 		Addr:    s.Conf.Address,

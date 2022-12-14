@@ -8,6 +8,7 @@ import (
 
 	"github.com/c-bata/go-prompt"
 	"github.com/ncyellow/GophKeeper/internal/client/api"
+	"github.com/ncyellow/GophKeeper/internal/client/config"
 )
 
 var LivePrefixState struct {
@@ -20,10 +21,11 @@ func changeLivePrefix() (string, bool) {
 }
 
 type Console struct {
+	Conf *config.Config
 }
 
-func CreateExecutor() func(string) {
-	sender := api.NewHTTPSender()
+func CreateExecutor(conf *config.Config) func(string) {
+	sender := api.NewHTTPSender(conf)
 	return func(t string) {
 		s := strings.TrimSpace(t)
 		commands := strings.Split(s, " ")
@@ -31,6 +33,9 @@ func CreateExecutor() func(string) {
 		case "exit":
 			fmt.Println("bye!")
 			os.Exit(0)
+		case "version":
+			fmt.Printf("Build version: %s\n", config.BuildVersion)
+			fmt.Printf("Build date: %s\n", config.BuildDate)
 		case "register":
 			username, password, err := credentials()
 			if err == nil {
@@ -225,6 +230,7 @@ func completer(d prompt.Document) []prompt.Suggest {
 				{Text: "bin-del", Description: "Delete binary"},
 
 				{Text: "help", Description: "List all available commands"},
+				{Text: "version", Description: "Client version"},
 				{Text: "exit", Description: "Exit"},
 			}
 		}
@@ -233,7 +239,7 @@ func completer(d prompt.Document) []prompt.Suggest {
 }
 
 func (p *Console) Run() {
-	executor := CreateExecutor()
+	executor := CreateExecutor(p.Conf)
 	prom := prompt.New(
 		executor,
 		completer,

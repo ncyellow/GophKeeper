@@ -4,6 +4,7 @@ package storage
 import (
 	"context"
 
+	"github.com/driftprogramming/pgxpoolmock"
 	"github.com/jackc/pgx/v4/pgxpool"
 	"github.com/ncyellow/GophKeeper/internal/models"
 	"github.com/ncyellow/GophKeeper/internal/server/config"
@@ -12,7 +13,7 @@ import (
 
 type PgStorage struct {
 	conf *config.Config
-	pool *pgxpool.Pool
+	pool pgxpoolmock.PgxPool
 }
 
 // NewPgStorage конструктор хранилища на основе postgresql, явно не используется, только через фабрику
@@ -39,8 +40,7 @@ func (p *PgStorage) Register(ctx context.Context, user models.User) (int64, erro
 	err := p.pool.QueryRow(ctx, `
 	INSERT INTO "users"("login", "password")
 	VALUES ($1, $2)
-	returning "@users"
-	`, user.Login, user.Password).Scan(&lastInsertID)
+	returning "@users"`, user.Login, user.Password).Scan(&lastInsertID)
 
 	// так как логин у нас уникален, то при попытке вставить второй одинаковый логин будет ошибка
 	if err != nil {

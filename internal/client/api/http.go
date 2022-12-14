@@ -9,6 +9,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/ncyellow/GophKeeper/internal/client/config"
 	"github.com/ncyellow/GophKeeper/internal/models"
 )
 
@@ -28,14 +29,14 @@ var (
 
 type HTTPSender struct {
 	Client    *http.Client
-	URL       string
+	Conf      *config.Config
 	AuthToken *string
 }
 
-func NewHTTPSender() *HTTPSender {
+func NewHTTPSender(conf *config.Config) *HTTPSender {
 	return &HTTPSender{
 		Client:    &http.Client{},
-		URL:       "http://localhost:8085",
+		Conf:      conf,
 		AuthToken: nil,
 	}
 }
@@ -51,7 +52,7 @@ func (s *HTTPSender) Register(login string, pwd string) error {
 		return ErrSerialization
 	}
 
-	req, err := http.NewRequest("POST", s.URL+"/api/register", bytes.NewBuffer(result))
+	req, err := http.NewRequest("POST", s.Conf.Address+"/api/register", bytes.NewBuffer(result))
 	if err != nil {
 		return ErrRequestPrepare
 	}
@@ -87,7 +88,7 @@ func (s *HTTPSender) SignIn(login string, pwd string) error {
 		return ErrSerialization
 	}
 
-	req, err := http.NewRequest("POST", s.URL+"/api/signin", bytes.NewBuffer(result))
+	req, err := http.NewRequest("POST", s.Conf.Address+"/api/signin", bytes.NewBuffer(result))
 	if err != nil {
 		return ErrRequestPrepare
 	}
@@ -223,7 +224,7 @@ func (s *HTTPSender) Add(data []byte, urlSuffix string) error {
 		return ErrAuthRequire
 	}
 
-	req, err := http.NewRequest("POST", s.URL+urlSuffix, bytes.NewBuffer(data))
+	req, err := http.NewRequest("POST", s.Conf.Address+urlSuffix, bytes.NewBuffer(data))
 	if err != nil {
 		return ErrRequestPrepare
 	}
@@ -249,7 +250,7 @@ func (s *HTTPSender) Read(textID string, urlSuffix string) ([]byte, error) {
 		return nil, ErrAuthRequire
 	}
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/%s", s.URL, urlSuffix, textID), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/%s", s.Conf.Address, urlSuffix, textID), nil)
 	if err != nil {
 		return nil, ErrRequestPrepare
 	}
@@ -282,7 +283,7 @@ func (s *HTTPSender) Del(binID string, urlSuffix string) error {
 		return ErrAuthRequire
 	}
 
-	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/%s/%s", s.URL, urlSuffix, binID), nil)
+	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/%s/%s", s.Conf.Address, urlSuffix, binID), nil)
 	if err != nil {
 		return ErrRequestPrepare
 	}

@@ -7,14 +7,9 @@ import (
 	"github.com/ncyellow/GophKeeper/internal/server/httpserver"
 )
 
-var (
-	buildVersion = "N/A"
-	buildDate    = "N/A"
-)
-
 func main() {
-	fmt.Printf("Build version: %s\n", buildVersion)
-	fmt.Printf("Build date: %s\n", buildDate)
+	fmt.Printf("Build version: %s\n", config.BuildVersion)
+	fmt.Printf("Build date: %s\n", config.BuildDate)
 	fmt.Println("Server start")
 
 	server := httpserver.HTTPServer{
