@@ -176,11 +176,7 @@ func (h *Handler) Card() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
 		cardID := chi.URLParam(r, "id")
-		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
-		if !ok {
-			rw.WriteHeader(http.StatusUnauthorized)
-			return
-		}
+		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
 		// Запрашиваем инфу по карте
 		targetCard, err := h.store.Card(r.Context(), user.UserID, cardID)
@@ -226,11 +222,7 @@ func (h *Handler) AddCard() http.HandlerFunc {
 			return
 		}
 
-		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
-		if !ok {
-			rw.WriteHeader(http.StatusUnauthorized)
-			return
-		}
+		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
 		err = h.store.AddCard(r.Context(), user.UserID, cardData)
 		if err != nil {
@@ -249,11 +241,7 @@ func (h *Handler) DeleteCard() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
 		cardID := chi.URLParam(r, "id")
-		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
-		if !ok {
-			rw.WriteHeader(http.StatusUnauthorized)
-			return
-		}
+		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
 		// Удаляем логин
 		err := h.store.DeleteCard(r.Context(), user.UserID, cardID)
@@ -274,11 +262,7 @@ func (h *Handler) Login() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
 		loginID := chi.URLParam(r, "id")
-		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
-		if !ok {
-			rw.WriteHeader(http.StatusUnauthorized)
-			return
-		}
+		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
 		// Запрашиваем инфу по логину
 		targetLogin, err := h.store.Login(r.Context(), user.UserID, loginID)
@@ -324,11 +308,7 @@ func (h *Handler) AddLogin() http.HandlerFunc {
 			return
 		}
 
-		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
-		if !ok {
-			rw.WriteHeader(http.StatusUnauthorized)
-			return
-		}
+		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
 		err = h.store.AddLogin(r.Context(), user.UserID, loginData)
 		if err != nil {
@@ -347,11 +327,7 @@ func (h *Handler) DeleteLogin() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
 		loginID := chi.URLParam(r, "id")
-		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
-		if !ok {
-			rw.WriteHeader(http.StatusUnauthorized)
-			return
-		}
+		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
 		// Удаляем логин
 		err := h.store.DeleteLogin(r.Context(), user.UserID, loginID)
@@ -371,11 +347,7 @@ func (h *Handler) Text() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
 		textID := chi.URLParam(r, "id")
-		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
-		if !ok {
-			rw.WriteHeader(http.StatusUnauthorized)
-			return
-		}
+		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
 		// Запрашиваем инфу по текстовым данным
 		targetText, err := h.store.Text(r.Context(), user.UserID, textID)
@@ -422,11 +394,7 @@ func (h *Handler) AddText() http.HandlerFunc {
 			return
 		}
 
-		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
-		if !ok {
-			rw.WriteHeader(http.StatusUnauthorized)
-			return
-		}
+		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
 		err = h.store.AddText(r.Context(), user.UserID, textData)
 		if err != nil {
@@ -445,11 +413,7 @@ func (h *Handler) DeleteText() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
 		textID := chi.URLParam(r, "id")
-		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
-		if !ok {
-			rw.WriteHeader(http.StatusUnauthorized)
-			return
-		}
+		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
 		// Удаляем текст
 		err := h.store.DeleteText(r.Context(), user.UserID, textID)
@@ -469,11 +433,7 @@ func (h *Handler) Binary() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
 		binID := chi.URLParam(r, "id")
-		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
-		if !ok {
-			rw.WriteHeader(http.StatusUnauthorized)
-			return
-		}
+		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
 		// Запрашиваем инфу по бинарным
 		targetBin, err := h.store.Binary(r.Context(), user.UserID, binID)
@@ -519,11 +479,7 @@ func (h *Handler) AddBinary() http.HandlerFunc {
 			return
 		}
 
-		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
-		if !ok {
-			rw.WriteHeader(http.StatusUnauthorized)
-			return
-		}
+		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
 		// Запрашиваем инфу по бинарным
 		err = h.store.AddBinary(r.Context(), user.UserID, binData)
@@ -543,11 +499,7 @@ func (h *Handler) DeleteBinary() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
 		binID := chi.URLParam(r, "id")
-		user, ok := r.Context().Value(auth.UserContextKey{}).(*models.User)
-		if !ok {
-			rw.WriteHeader(http.StatusUnauthorized)
-			return
-		}
+		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
 		// Удаляем бинарь
 		err := h.store.DeleteBinary(r.Context(), user.UserID, binID)

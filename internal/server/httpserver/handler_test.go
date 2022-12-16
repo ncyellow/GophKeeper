@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/jackc/pgx/v4"
 	"github.com/ncyellow/GophKeeper/internal/models"
 	"github.com/ncyellow/GophKeeper/internal/server/config"
 	mock_jwt "github.com/ncyellow/GophKeeper/internal/server/mocks/auth/jwt"
@@ -231,13 +232,15 @@ func (suite *HandlersSuite) TestSignIn() {
 	suite.runTableTests(testData)
 }
 
-// TestRegisterHandler основные тесты по регистрации
+// TestCard тесты по чтение карт
 func (suite *HandlersSuite) TestCard() {
 
-	userID := 1
+	userID := int64(1)
+	cardID := "testID"
+	url := fmt.Sprintf("/api/card/%s", cardID)
 	defaultCard := &models.Card{
 		UserID:   userID,
-		ID:       "test_id",
+		ID:       cardID,
 		FIO:      "fio",
 		Number:   "number",
 		Date:     "date",
@@ -249,7 +252,7 @@ func (suite *HandlersSuite) TestCard() {
 	testData := []tests{
 		{
 			name:        "read card successfully",
-			request:     fmt.Sprintf("/api/card/%d", userID),
+			request:     url,
 			requestType: "GET",
 			contentType: "",
 			body:        nil,
@@ -258,14 +261,306 @@ func (suite *HandlersSuite) TestCard() {
 					UserID: int64(userID),
 					Login:  "login",
 				}
-				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return("login", nil)
-				suite.store.EXPECT().UserByLogin(gomock.Any(), gomock.Any()).Return(user, nil)
-				suite.store.EXPECT().Card(gomock.Any(), user.UserID, fmt.Sprintf("%d", userID)).
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().Card(gomock.Any(), user.UserID, cardID).
 					Return(defaultCard, nil)
 			},
 			want: want{
 				statusCode: http.StatusOK,
 				body:       string(byteCard),
+			},
+		},
+		{
+			name:        "read card not found",
+			request:     url,
+			requestType: "GET",
+			contentType: "",
+			body:        nil,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: int64(userID),
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().Card(gomock.Any(), user.UserID, cardID).
+					Return(nil, pgx.ErrNoRows)
+			},
+			want: want{
+				statusCode: http.StatusNotFound,
+				body:       "",
+			},
+		},
+		{
+			name:        "read card internal error",
+			request:     url,
+			requestType: "GET",
+			contentType: "",
+			body:        nil,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: int64(userID),
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().Card(gomock.Any(), user.UserID, cardID).
+					Return(nil, errors.New("some error"))
+			},
+			want: want{
+				statusCode: http.StatusInternalServerError,
+				body:       "",
+			},
+		},
+	}
+	suite.runTableTests(testData)
+}
+
+// TestLogin тесты по запросу логинов
+func (suite *HandlersSuite) TestLogin() {
+
+	userID := int64(1)
+	loginID := "testID"
+	url := fmt.Sprintf("/api/login/%s", loginID)
+
+	defaultLogin := &models.Login{
+		UserID:   userID,
+		ID:       loginID,
+		Login:    "login",
+		Password: "password",
+		MetaInfo: "metainfo",
+	}
+	byteLogin, _ := json.Marshal(defaultLogin)
+
+	testData := []tests{
+		{
+			name:        "read login successfully",
+			request:     url,
+			requestType: "GET",
+			contentType: "",
+			body:        nil,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().Login(gomock.Any(), user.UserID, loginID).
+					Return(defaultLogin, nil)
+			},
+			want: want{
+				statusCode: http.StatusOK,
+				body:       string(byteLogin),
+			},
+		},
+		{
+			name:        "read login not found",
+			request:     url,
+			requestType: "GET",
+			contentType: "",
+			body:        nil,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().Login(gomock.Any(), user.UserID, loginID).
+					Return(nil, pgx.ErrNoRows)
+			},
+			want: want{
+				statusCode: http.StatusNotFound,
+				body:       "",
+			},
+		},
+		{
+			name:        "read login internal error",
+			request:     url,
+			requestType: "GET",
+			contentType: "",
+			body:        nil,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().Login(gomock.Any(), user.UserID, loginID).
+					Return(nil, errors.New("some error"))
+			},
+			want: want{
+				statusCode: http.StatusInternalServerError,
+				body:       "",
+			},
+		},
+	}
+	suite.runTableTests(testData)
+}
+
+// TestText тесты по запросу логинов
+func (suite *HandlersSuite) TestText() {
+
+	userID := int64(1)
+	textID := "testID"
+	url := fmt.Sprintf("/api/txt/%s", textID)
+
+	defaultText := &models.Text{
+		UserID:   userID,
+		ID:       textID,
+		Content:  "content",
+		MetaInfo: "metainfo",
+	}
+	byteText, _ := json.Marshal(defaultText)
+
+	testData := []tests{
+		{
+			name:        "read text successfully",
+			request:     url,
+			requestType: "GET",
+			contentType: "",
+			body:        nil,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().Text(gomock.Any(), user.UserID, textID).
+					Return(defaultText, nil)
+			},
+			want: want{
+				statusCode: http.StatusOK,
+				body:       string(byteText),
+			},
+		},
+		{
+			name:        "read text not found",
+			request:     url,
+			requestType: "GET",
+			contentType: "",
+			body:        nil,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().Text(gomock.Any(), user.UserID, textID).
+					Return(nil, pgx.ErrNoRows)
+			},
+			want: want{
+				statusCode: http.StatusNotFound,
+				body:       "",
+			},
+		},
+		{
+			name:        "read text internal error",
+			request:     url,
+			requestType: "GET",
+			contentType: "",
+			body:        nil,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().Text(gomock.Any(), user.UserID, textID).
+					Return(nil, errors.New("some error"))
+			},
+			want: want{
+				statusCode: http.StatusInternalServerError,
+				body:       "",
+			},
+		},
+	}
+	suite.runTableTests(testData)
+}
+
+// TestText тесты по запросу логинов
+func (suite *HandlersSuite) TestBin() {
+
+	userID := int64(1)
+	binID := "testID"
+	url := fmt.Sprintf("/api/bin/%s", binID)
+
+	defaultBin := &models.Binary{
+		UserID:   userID,
+		ID:       binID,
+		Data:     []byte("data"),
+		MetaInfo: "metainfo",
+	}
+	byteBin, _ := json.Marshal(defaultBin)
+
+	testData := []tests{
+		{
+			name:        "read text successfully",
+			request:     url,
+			requestType: "GET",
+			contentType: "",
+			body:        nil,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().Binary(gomock.Any(), user.UserID, binID).
+					Return(defaultBin, nil)
+			},
+			want: want{
+				statusCode: http.StatusOK,
+				body:       string(byteBin),
+			},
+		},
+		{
+			name:        "read text not found",
+			request:     url,
+			requestType: "GET",
+			contentType: "",
+			body:        nil,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().Binary(gomock.Any(), user.UserID, binID).
+					Return(nil, pgx.ErrNoRows)
+			},
+			want: want{
+				statusCode: http.StatusNotFound,
+				body:       "",
+			},
+		},
+		{
+			name:        "read text internal error",
+			request:     url,
+			requestType: "GET",
+			contentType: "",
+			body:        nil,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().Binary(gomock.Any(), user.UserID, binID).
+					Return(nil, errors.New("some error"))
+			},
+			want: want{
+				statusCode: http.StatusInternalServerError,
+				body:       "",
 			},
 		},
 	}

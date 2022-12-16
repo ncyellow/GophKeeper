@@ -11,7 +11,7 @@ type User struct {
 
 // Card - карта банка
 type Card struct {
-	UserID   int    `json:"-"`
+	UserID   int64  `json:"-"`
 	ID       string `json:"id"`
 	FIO      string `json:"fio"` // Написание ФИО на карте может отличаться от реального
 	Number   string `json:"number"`
@@ -22,7 +22,7 @@ type Card struct {
 
 // Text - текстовый контент
 type Text struct {
-	UserID   int    `json:"-"`
+	UserID   int64  `json:"-"`
 	ID       string `json:"id"`
 	Content  string `json:"content"`
 	MetaInfo string `json:"metainfo"`
@@ -30,7 +30,7 @@ type Text struct {
 
 // Binary - бинарные данные
 type Binary struct {
-	UserID   int    `json:"-"`
+	UserID   int64  `json:"-"`
 	ID       string `json:"id"`
 	Data     []byte `json:"data"`
 	MetaInfo string `json:"metainfo"`
