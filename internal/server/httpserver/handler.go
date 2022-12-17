@@ -312,7 +312,7 @@ func (h *Handler) AddLogin() http.HandlerFunc {
 
 		err = h.store.AddLogin(r.Context(), user.UserID, loginData)
 		if err != nil {
-			rw.WriteHeader(http.StatusInternalServerError)
+			rw.WriteHeader(http.StatusConflict)
 			return
 		}
 
@@ -398,7 +398,7 @@ func (h *Handler) AddText() http.HandlerFunc {
 
 		err = h.store.AddText(r.Context(), user.UserID, textData)
 		if err != nil {
-			rw.WriteHeader(http.StatusInternalServerError)
+			rw.WriteHeader(http.StatusConflict)
 			return
 		}
 
@@ -484,7 +484,7 @@ func (h *Handler) AddBinary() http.HandlerFunc {
 		// Запрашиваем инфу по бинарным
 		err = h.store.AddBinary(r.Context(), user.UserID, binData)
 		if err != nil {
-			rw.WriteHeader(http.StatusInternalServerError)
+			rw.WriteHeader(http.StatusConflict)
 			return
 		}
 

@@ -566,3 +566,544 @@ func (suite *HandlersSuite) TestBin() {
 	}
 	suite.runTableTests(testData)
 }
+
+// TestAddCard тесты по добавлению карт
+func (suite *HandlersSuite) TestAddCard() {
+
+	userID := int64(1)
+	cardID := "testID"
+	url := "/api/card"
+
+	defaultCard := &models.Card{
+		ID:       cardID,
+		FIO:      "fio",
+		Number:   "number",
+		Date:     "date",
+		CVV:      "cvv",
+		MetaInfo: "metainfo",
+	}
+
+	byteCard, _ := json.Marshal(defaultCard)
+
+	testData := []tests{
+		{
+			name:        "add card successfully",
+			request:     url,
+			requestType: "POST",
+			contentType: "",
+			body:        byteCard,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().AddCard(gomock.Any(), user.UserID, *defaultCard).
+					Return(nil)
+			},
+			want: want{
+				statusCode: http.StatusOK,
+				body:       "ok",
+			},
+		},
+		{
+			name:        "add card with conflict",
+			request:     url,
+			requestType: "POST",
+			contentType: "",
+			body:        byteCard,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().AddCard(gomock.Any(), user.UserID, *defaultCard).
+					Return(errors.New("some error"))
+			},
+			want: want{
+				statusCode: http.StatusConflict,
+				body:       "",
+			},
+		},
+		{
+			name:        "add card invalid json body",
+			request:     url,
+			requestType: "POST",
+			contentType: "",
+			body:        []byte(`"{"test":dd,ddla,la,dlww`),
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				body:       "invalid deserialization",
+			},
+		},
+	}
+	suite.runTableTests(testData)
+}
+
+// TestDelCard тесты по удалению карт
+func (suite *HandlersSuite) TestDelCard() {
+
+	userID := int64(1)
+	cardID := "testID"
+	url := fmt.Sprintf("/api/card/%s", cardID)
+
+	testData := []tests{
+		{
+			name:        "del card successfully",
+			request:     url,
+			requestType: "DELETE",
+			contentType: "",
+			body:        nil,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().DeleteCard(gomock.Any(), user.UserID, cardID).
+					Return(nil)
+			},
+			want: want{
+				statusCode: http.StatusOK,
+				body:       "ok",
+			},
+		},
+		{
+			name:        "del card with problem",
+			request:     url,
+			requestType: "DELETE",
+			contentType: "",
+			body:        nil,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().DeleteCard(gomock.Any(), user.UserID, cardID).
+					Return(errors.New("some errors"))
+			},
+			want: want{
+				statusCode: http.StatusInternalServerError,
+				body:       "",
+			},
+		},
+	}
+	suite.runTableTests(testData)
+}
+
+// TestAddLogin тесты по добавлению карт
+func (suite *HandlersSuite) TestAddLogin() {
+
+	userID := int64(1)
+	loginID := "testID"
+	url := "/api/login"
+
+	defaultLogin := &models.Login{
+		ID:       loginID,
+		Login:    "login",
+		Password: "password",
+		MetaInfo: "metainfo",
+	}
+	byteLogin, _ := json.Marshal(defaultLogin)
+
+	testData := []tests{
+		{
+			name:        "add login successfully",
+			request:     url,
+			requestType: "POST",
+			contentType: "",
+			body:        byteLogin,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().AddLogin(gomock.Any(), user.UserID, *defaultLogin).
+					Return(nil)
+			},
+			want: want{
+				statusCode: http.StatusOK,
+				body:       "ok",
+			},
+		},
+		{
+			name:        "add login with conflict",
+			request:     url,
+			requestType: "POST",
+			contentType: "",
+			body:        byteLogin,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().AddLogin(gomock.Any(), user.UserID, *defaultLogin).
+					Return(errors.New("some error"))
+			},
+			want: want{
+				statusCode: http.StatusConflict,
+				body:       "",
+			},
+		},
+		{
+			name:        "add login invalid json body",
+			request:     url,
+			requestType: "POST",
+			contentType: "",
+			body:        []byte(`"{"test":dd,ddla,la,dlww`),
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				body:       "invalid deserialization",
+			},
+		},
+	}
+	suite.runTableTests(testData)
+}
+
+// TestDelLogin тесты по удалению логинов
+func (suite *HandlersSuite) TestDelLogin() {
+
+	userID := int64(1)
+	loginID := "testID"
+	url := fmt.Sprintf("/api/login/%s", loginID)
+
+	testData := []tests{
+		{
+			name:        "del login successfully",
+			request:     url,
+			requestType: "DELETE",
+			contentType: "",
+			body:        nil,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().DeleteLogin(gomock.Any(), user.UserID, loginID).
+					Return(nil)
+			},
+			want: want{
+				statusCode: http.StatusOK,
+				body:       "ok",
+			},
+		},
+		{
+			name:        "del card with problem",
+			request:     url,
+			requestType: "DELETE",
+			contentType: "",
+			body:        nil,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().DeleteLogin(gomock.Any(), user.UserID, loginID).
+					Return(errors.New("some errors"))
+			},
+			want: want{
+				statusCode: http.StatusInternalServerError,
+				body:       "",
+			},
+		},
+	}
+	suite.runTableTests(testData)
+}
+
+// TestAddText тесты по добавлению текста
+func (suite *HandlersSuite) TestAddText() {
+
+	userID := int64(1)
+	textID := "testID"
+	url := "/api/txt"
+
+	defaultText := &models.Text{
+		ID:       textID,
+		Content:  "content",
+		MetaInfo: "metainfo",
+	}
+	byteText, _ := json.Marshal(defaultText)
+
+	testData := []tests{
+		{
+			name:        "add text successfully",
+			request:     url,
+			requestType: "POST",
+			contentType: "",
+			body:        byteText,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().AddText(gomock.Any(), user.UserID, *defaultText).
+					Return(nil)
+			},
+			want: want{
+				statusCode: http.StatusOK,
+				body:       "ok",
+			},
+		},
+		{
+			name:        "add text with conflict",
+			request:     url,
+			requestType: "POST",
+			contentType: "",
+			body:        byteText,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().AddText(gomock.Any(), user.UserID, *defaultText).
+					Return(errors.New("some error"))
+			},
+			want: want{
+				statusCode: http.StatusConflict,
+				body:       "",
+			},
+		},
+		{
+			name:        "add text invalid json body",
+			request:     url,
+			requestType: "POST",
+			contentType: "",
+			body:        []byte(`"{"test":dd,ddla,la,dlww`),
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				body:       "invalid deserialization",
+			},
+		},
+	}
+	suite.runTableTests(testData)
+}
+
+// TestDelText тесты по удалению текстов
+func (suite *HandlersSuite) TestDelText() {
+
+	userID := int64(1)
+	textID := "testID"
+	url := fmt.Sprintf("/api/txt/%s", textID)
+
+	testData := []tests{
+		{
+			name:        "del text successfully",
+			request:     url,
+			requestType: "DELETE",
+			contentType: "",
+			body:        nil,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().DeleteText(gomock.Any(), user.UserID, textID).
+					Return(nil)
+			},
+			want: want{
+				statusCode: http.StatusOK,
+				body:       "ok",
+			},
+		},
+		{
+			name:        "del card with problem",
+			request:     url,
+			requestType: "DELETE",
+			contentType: "",
+			body:        nil,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().DeleteText(gomock.Any(), user.UserID, textID).
+					Return(errors.New("some errors"))
+			},
+			want: want{
+				statusCode: http.StatusInternalServerError,
+				body:       "",
+			},
+		},
+	}
+	suite.runTableTests(testData)
+}
+
+// TestAddBin тесты по добавлению binary
+func (suite *HandlersSuite) TestAddBin() {
+
+	userID := int64(1)
+	binID := "testID"
+	url := "/api/bin"
+
+	defaultBin := &models.Binary{
+		ID:       binID,
+		Data:     []byte("data"),
+		MetaInfo: "metainfo",
+	}
+	byteBin, _ := json.Marshal(defaultBin)
+
+	testData := []tests{
+		{
+			name:        "add bin successfully",
+			request:     url,
+			requestType: "POST",
+			contentType: "",
+			body:        byteBin,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().AddBinary(gomock.Any(), user.UserID, *defaultBin).
+					Return(nil)
+			},
+			want: want{
+				statusCode: http.StatusOK,
+				body:       "ok",
+			},
+		},
+		{
+			name:        "add bin with conflict",
+			request:     url,
+			requestType: "POST",
+			contentType: "",
+			body:        byteBin,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().AddBinary(gomock.Any(), user.UserID, *defaultBin).
+					Return(errors.New("some error"))
+			},
+			want: want{
+				statusCode: http.StatusConflict,
+				body:       "",
+			},
+		},
+		{
+			name:        "add bin invalid json body",
+			request:     url,
+			requestType: "POST",
+			contentType: "",
+			body:        []byte(`"{"test":dd,ddla,la,dlww`),
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+			},
+			want: want{
+				statusCode: http.StatusBadRequest,
+				body:       "invalid deserialization",
+			},
+		},
+	}
+	suite.runTableTests(testData)
+}
+
+// TestDelBin тесты по удалению binary
+func (suite *HandlersSuite) TestDelBin() {
+
+	userID := int64(1)
+	binID := "testID"
+	url := fmt.Sprintf("/api/bin/%s", binID)
+
+	testData := []tests{
+		{
+			name:        "del bin successfully",
+			request:     url,
+			requestType: "DELETE",
+			contentType: "",
+			body:        nil,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().DeleteBinary(gomock.Any(), user.UserID, binID).
+					Return(nil)
+			},
+			want: want{
+				statusCode: http.StatusOK,
+				body:       "ok",
+			},
+		},
+		{
+			name:        "del bin with problem",
+			request:     url,
+			requestType: "DELETE",
+			contentType: "",
+			body:        nil,
+			mockExpected: func() {
+				user := &models.User{
+					UserID: userID,
+					Login:  "login",
+				}
+				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
+				suite.store.EXPECT().UserByLogin(gomock.Any(), user.Login).Return(user, nil)
+				suite.store.EXPECT().DeleteBinary(gomock.Any(), user.UserID, binID).
+					Return(errors.New("some errors"))
+			},
+			want: want{
+				statusCode: http.StatusInternalServerError,
+				body:       "",
+			},
+		},
+	}
+	suite.runTableTests(testData)
+}
