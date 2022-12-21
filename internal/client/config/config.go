@@ -13,10 +13,12 @@ var (
 	BuildDate    = "N/A"
 )
 
+// Config структура для работы с конфигурацией клиента
 type Config struct {
 	Address string `env:"ADDRESS"`
 }
 
+// ParseConfig парсинг ENV и командной строки для получения конфигурации
 func ParseConfig() *Config {
 	var cfg Config
 

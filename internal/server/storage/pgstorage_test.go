@@ -271,6 +271,52 @@ func (suite *PgStorageSuite) TestAddText() {
 	assert.Error(suite.T(), err, targetErr)
 }
 
+func (suite *PgStorageSuite) TestText() {
+	userID := int64(1)
+	text := models.Text{
+		UserID:   userID,
+		ID:       "testID",
+		Content:  "content",
+		MetaInfo: "metainfo",
+	}
+
+	//! Тест на корректную вставку
+	columns := []string{"id", "user", "content", "metainfo"}
+	pgxRows := pgxpoolmock.NewRows(columns).
+		AddRow(text.ID, userID, text.Content, text.MetaInfo).ToPgxRows()
+	pgxRows.Next()
+
+	suite.mockPool.EXPECT().QueryRow(gomock.Any(), `
+	SELECT "id", "user", "content", "metainfo"
+	FROM "text_data"
+	WHERE "user" = $1 and "id" = $2
+	LIMIT 1
+	`, userID, text.ID).Return(pgxRows)
+
+	targetBin, err := suite.store.Text(context.Background(), userID, text.ID)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), *targetBin, text)
+
+	//! Тест на ошибки sql
+	targetErr := errors.New("some error")
+	pgxRows = pgxpoolmock.NewRows(columns).
+		AddRow(text.ID, userID, text.Content, text.MetaInfo).
+		RowError(0, targetErr).
+		ToPgxRows()
+	pgxRows.Next()
+
+	suite.mockPool.EXPECT().QueryRow(gomock.Any(), `
+	SELECT "id", "user", "content", "metainfo"
+	FROM "text_data"
+	WHERE "user" = $1 and "id" = $2
+	LIMIT 1
+	`, userID, text.ID).Return(pgxRows)
+
+	targetBin, err = suite.store.Text(context.Background(), userID, text.ID)
+	assert.Error(suite.T(), err, targetErr)
+	assert.Nil(suite.T(), targetBin)
+}
+
 func (suite *PgStorageSuite) TestDeleteText() {
 
 	userID := int64(1)

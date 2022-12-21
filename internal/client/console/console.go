@@ -20,10 +20,12 @@ func changeLivePrefix() (string, bool) {
 	return LivePrefixState.LivePrefix, LivePrefixState.IsEnable
 }
 
+// Console структура по обработке ввода с клавиатуры. С использованием go-prompt
 type Console struct {
 	Conf *config.Config
 }
 
+// CreateExecutor функция обработки всех введенных с клавиатуры команд
 func CreateExecutor(conf *config.Config) func(string) {
 	sender := api.NewHTTPSender(conf)
 	return func(t string) {
@@ -201,8 +203,8 @@ func CreateExecutor(conf *config.Config) func(string) {
 	}
 }
 
+// completer - реализация автодополнения
 func completer(d prompt.Document) []prompt.Suggest {
-
 	var s []prompt.Suggest
 	if d.Text != "" {
 
@@ -238,6 +240,7 @@ func completer(d prompt.Document) []prompt.Suggest {
 	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
 }
 
+// Run запуск нашей собственной консоли с приглашением
 func (p *Console) Run() {
 	executor := CreateExecutor(p.Conf)
 	prom := prompt.New(

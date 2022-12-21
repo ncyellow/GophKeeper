@@ -13,12 +13,14 @@ var (
 	BuildDate    = "N/A"
 )
 
+// Config структура для работы с конфигурацией сервера
 type Config struct {
 	Address      string `env:"RUN_ADDRESS"`
 	DatabaseConn string `env:"DATABASE_URI"`
 	SigningKey   string `env:"SUPER_KEY"`
 }
 
+// ParseConfig парсинг ENV + командной строки для чтения конфигурации
 func ParseConfig() *Config {
 	var cfg Config
 

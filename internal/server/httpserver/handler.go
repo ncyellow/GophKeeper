@@ -18,12 +18,14 @@ import (
 	"github.com/ncyellow/GophKeeper/internal/server/storage"
 )
 
+// Handler структура реализует chi.Mux для работы роутинга
 type Handler struct {
 	*chi.Mux
 	store      storage.Storage
 	authorizer *jwt.Authorizer
 }
 
+// NewRouter конструктор нашего объекта роутинга
 func NewRouter(conf *config.Config, store storage.Storage, parser jwt.Parser) chi.Router {
 
 	r := chi.NewRouter()
