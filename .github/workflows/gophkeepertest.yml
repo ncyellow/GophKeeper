@@ -39,17 +39,27 @@ jobs:
         run: |
           chmod -R +x $GITHUB_WORKSPACE/.tools
           mv $GITHUB_WORKSPACE/.tools/gophkeepertest /usr/local/bin/gophkeepertest
+      
       - name: Build server binary
         run: |
           cd cmd/server
           go build -o server
+          
+      - name: Build client binary
+        run: |
+          cd cmd/client
+          go build -o client          
 
       - name: "Code increment #1"
         if: always()
         run: |
           gophkeepertest -test.v -test.run=^TestIteration1$ \
-            -agent-binary-path=cmd/agent/agent
-      - name: Build server binary
+            -client-binary-path=cmd/client/client \
+            -server-binary-path=cmd/server/server
+            
+      - name: "Code increment #2"
+        if: always()
         run: |
-          cd cmd/server
-          go build -o server          
+            gophkeepertest -test.v -test.run=^TestIteration2$ \
+              -client-binary-path=cmd/client/client \
+              -server-binary-path=cmd/server/server
