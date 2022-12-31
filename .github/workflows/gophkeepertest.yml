@@ -39,8 +39,9 @@ jobs:
         run: |
           chmod -R +x $GITHUB_WORKSPACE/.tools
           ls $GITHUB_WORKSPACE/.tools
-          mv $GITHUB_WORKSPACE/.tools/gophkeepertest /usr/local/bin/gophkeepertest
+          mv $GITHUB_WORKSPACE/.tools/gophkeepertest /usr/local/bin/gopht
           ls /usr/local/bin/
+          gopht
       
       - name: Build server binary
         run: |
@@ -56,7 +57,7 @@ jobs:
         if: always()
         run: |
           ls -l /usr/local/bin/
-          /usr/local/bin/gophkeepertest -test.v -test.run=^TestIteration1$ \
+          /usr/local/bin/gopht -test.v -test.run=^TestIteration1$ \
             -client-binary-path=cmd/client/client \
             -server-binary-path=cmd/server/server
 #            -database-dsn='postgres://postgres:postgres@postgres:5432/testdb?sslmode=disable'
@@ -64,7 +65,7 @@ jobs:
       - name: "Code increment #2"
         if: always()
         run: |
-          gophkeepertest -test.v -test.run=^TestIteration2$ \
+          gopht -test.v -test.run=^TestIteration2$ \
             -client-binary-path=cmd/client/client \
             -server-binary-path=cmd/server/server
 #            -database-dsn='postgres://postgres:postgres@postgres:5432/testdb?sslmode=disable'
