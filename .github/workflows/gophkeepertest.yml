@@ -58,13 +58,13 @@ jobs:
           ls -l /usr/local/bin/
           /usr/local/bin/gophkeepertest -test.v -test.run=^TestIteration1$ \
             -client-binary-path=cmd/client/client \
-            -server-binary-path=cmd/server/server \
-            -database-dsn='postgres://postgres:postgres@postgres:5432/testdb?sslmode=disable'
+            -server-binary-path=cmd/server/server
+#            -database-dsn='postgres://postgres:postgres@postgres:5432/testdb?sslmode=disable'
             
       - name: "Code increment #2"
         if: always()
         run: |
           gophkeepertest -test.v -test.run=^TestIteration2$ \
             -client-binary-path=cmd/client/client \
-            -server-binary-path=cmd/server/server \
-            -database-dsn='postgres://postgres:postgres@postgres:5432/testdb?sslmode=disable'
+            -server-binary-path=cmd/server/server
+#            -database-dsn='postgres://postgres:postgres@postgres:5432/testdb?sslmode=disable'
