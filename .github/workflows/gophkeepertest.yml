@@ -38,10 +38,11 @@ jobs:
       - name: Setup autotest binary
         run: |
           chmod -R +x $GITHUB_WORKSPACE/.tools
+          $GITHUB_WORKSPACE/.tools/gophkeepertest
           ls $GITHUB_WORKSPACE/.tools
           mv $GITHUB_WORKSPACE/.tools/gophkeepertest /usr/local/bin/gopht
           ls /usr/local/bin/
-          gopht
+          /usr/local/bin/gopht
       
       - name: Build server binary
         run: |
