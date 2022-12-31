@@ -38,8 +38,9 @@ jobs:
       - name: Setup autotest binary
         run: |
           chmod -R +x $GITHUB_WORKSPACE/.tools
-          cp $GITHUB_WORKSPACE/.tools/gophkeepertest /usr/bin/gophkeepertest
+          ls $GITHUB_WORKSPACE/.tools
           mv $GITHUB_WORKSPACE/.tools/gophkeepertest /usr/local/bin/gophkeepertest
+          ls /usr/local/bin/
       
       - name: Build server binary
         run: |
