@@ -41,6 +41,8 @@ jobs:
           ls $GITHUB_WORKSPACE/.tools
           mv $GITHUB_WORKSPACE/.tools/gopht /usr/local/bin/gopht
           mv $GITHUB_WORKSPACE/.tools/hello /usr/local/bin/hello
+          mv $GITHUB_WORKSPACE/.tools/statictest /usr/local/bin/statictest
+          
           ls /usr/local/bin/
 
       - name: Build server binary
@@ -56,7 +58,7 @@ jobs:
       - name: "Code increment #1"
         if: always()
         run: |
-          hello
+          statictest
 #          who
 #          ls -l /usr/local/bin/
 #          /usr/local/bin/gopht -test.v -test.run=^TestIteration1$ \
@@ -67,7 +69,7 @@ jobs:
       - name: "Code increment #2"
         if: always()
         run: |
-          gopht
+          hello
 #          who
 #          gopht -test.v -test.run=^TestIteration2$ \
 #            -client-binary-path=cmd/client/client \
