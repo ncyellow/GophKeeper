@@ -54,7 +54,7 @@ jobs:
       - name: "Code increment #1"
         if: always()
         run: |
-          /usr/local/bin/gopht -test.v -test.run=^TestIteration1$ \
+          gopht -test.v -test.run=^TestIteration1$ \
             -client-binary-path=cmd/client/client \
             -server-binary-path=cmd/server/server \
             -database-dsn='postgres://postgres:postgres@postgres:5432/testdb?sslmode=disable'
@@ -62,8 +62,6 @@ jobs:
       - name: "Code increment #2"
         if: always()
         run: |
-          hello
-          who
           gopht -test.v -test.run=^TestIteration2$ \
             -client-binary-path=cmd/client/client \
             -server-binary-path=cmd/server/server \
