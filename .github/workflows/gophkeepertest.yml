@@ -56,7 +56,7 @@ jobs:
         run: |
           /usr/local/bin/gopht -test.v -test.run=^TestIteration1$ \
             -client-binary-path=cmd/client/client \
-            -server-binary-path=cmd/server/server
+            -server-binary-path=cmd/server/server \
             -database-dsn='postgres://postgres:postgres@postgres:5432/testdb?sslmode=disable'
             
       - name: "Code increment #2"
@@ -66,5 +66,5 @@ jobs:
           who
           gopht -test.v -test.run=^TestIteration2$ \
             -client-binary-path=cmd/client/client \
-            -server-binary-path=cmd/server/server
+            -server-binary-path=cmd/server/server \
             -database-dsn='postgres://postgres:postgres@postgres:5432/testdb?sslmode=disable'
