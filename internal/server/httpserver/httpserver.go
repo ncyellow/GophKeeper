@@ -19,6 +19,7 @@ type HTTPServer struct {
 }
 
 func (s *HTTPServer) Run() {
+
 	store := storage.NewPgStorage(s.Conf)
 	router := NewRouter(s.Conf, store, &jwt.DefaultParser{})
 
@@ -45,7 +46,7 @@ func (s *HTTPServer) Run() {
 	}()
 
 	go func() {
-		if err := http.ListenAndServe(s.Conf.Address, router); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServeTLS(s.Conf.CryptoCrt, s.Conf.CryptoKey); err != nil && err != http.ErrServerClosed {
 			log.Error().Msgf("listen: %s", err)
 		}
 	}()

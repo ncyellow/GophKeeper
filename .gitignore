@@ -1,3 +1,5 @@
 
 .idea/sqldialects.xml
 .idea/dataSources.xml
+cmd/client/client
+cmd/server/server

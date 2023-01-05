@@ -3,10 +3,14 @@ package api
 
 import (
 	"bytes"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
+	"log"
 	"net/http"
 
 	"github.com/ncyellow/GophKeeper/internal/client/config"
@@ -36,8 +40,35 @@ type HTTPSender struct {
 
 // NewHTTPSender конструктор http клиента
 func NewHTTPSender(conf *config.Config) *HTTPSender {
+
+	// так как нам важна работа через tls, то все проблемы с tls вызывают фаталити
+	clientCertFile := conf.CryptoCrt
+	clientKeyFile := conf.CryptoKey
+	caCertFile := conf.CACertFile
+
+	cert, err := tls.LoadX509KeyPair(clientCertFile, clientKeyFile)
+	if err != nil {
+		log.Fatalf("Error creating x509 keypair from client cert file %s and client key file %s", clientCertFile, clientKeyFile)
+	}
+
+	caCert, err := ioutil.ReadFile(caCertFile)
+	if err != nil {
+		log.Fatalf("Error opening cert file %s, Error: %s", caCertFile, err)
+	}
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
+
+	t := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			Certificates: []tls.Certificate{cert},
+			RootCAs:      caCertPool,
+		},
+	}
+
 	return &HTTPSender{
-		Client:    &http.Client{},
+		Client: &http.Client{
+			Transport: t,
+		},
 		Conf:      conf,
 		AuthToken: nil,
 	}
@@ -61,7 +92,7 @@ func (s *HTTPSender) Register(login string, pwd string) error {
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := s.Client.Do(req)
 	if err != nil {
 		return ErrServerTimout
 	}
@@ -97,7 +128,7 @@ func (s *HTTPSender) SignIn(login string, pwd string) error {
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := s.Client.Do(req)
 	if err != nil {
 		return ErrServerTimout
 	}
@@ -247,7 +278,7 @@ func (s *HTTPSender) Add(data []byte, urlSuffix string) error {
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", *s.AuthToken)
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := s.Client.Do(req)
 	if err != nil {
 		return ErrServerTimout
 	}
@@ -273,7 +304,7 @@ func (s *HTTPSender) Read(textID string, urlSuffix string) ([]byte, error) {
 	}
 	req.Header.Set("Authorization", *s.AuthToken)
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := s.Client.Do(req)
 	if err != nil {
 		return nil, ErrServerTimout
 	}
@@ -308,7 +339,7 @@ func (s *HTTPSender) Del(binID string, urlSuffix string) error {
 
 	req.Header.Set("Authorization", *s.AuthToken)
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := s.Client.Do(req)
 	if err != nil {
 		return ErrServerTimout
 	}
