@@ -114,6 +114,45 @@ func (suite *PgStorageSuite) TestUser() {
 	assert.Error(suite.T(), err, pgx.ErrNoRows)
 }
 
+func (suite *PgStorageSuite) TestUserByLogin() {
+	userID := int64(1)
+	user := models.User{
+		UserID: userID,
+		Login:  "login",
+	}
+
+	//! Тест на корректную вставку
+	columns := []string{"@users", "login"}
+	pgxRows := pgxpoolmock.NewRows(columns).AddRow(userID, user.Login).ToPgxRows()
+	pgxRows.Next()
+
+	suite.mockPool.EXPECT().QueryRow(gomock.Any(), `
+	SELECT "@users", "login" FROM "users" WHERE "login" = $1
+	LIMIT 1
+	`, user.Login).Return(pgxRows)
+
+	resultUser, err := suite.store.UserByLogin(context.Background(), user.Login)
+	assert.Equal(suite.T(), *resultUser, user)
+	assert.NoError(suite.T(), err)
+
+	//! Тест когда не найден пользователь
+	pgxRows = pgxpoolmock.
+		NewRows(columns).
+		AddRow(userID, user.Login).
+		RowError(0, pgx.ErrNoRows).
+		ToPgxRows()
+	pgxRows.Next()
+
+	suite.mockPool.EXPECT().QueryRow(gomock.Any(), `
+	SELECT "@users", "login" FROM "users" WHERE "login" = $1
+	LIMIT 1
+	`, user.Login).Return(pgxRows)
+
+	resultUser, err = suite.store.UserByLogin(context.Background(), user.Login)
+	assert.Nil(suite.T(), resultUser)
+	assert.Error(suite.T(), err, pgx.ErrNoRows)
+}
+
 func (suite *PgStorageSuite) TestAddCard() {
 	userID := int64(1)
 	card := models.Card{
@@ -156,6 +195,54 @@ func (suite *PgStorageSuite) TestAddCard() {
 
 	err = suite.store.AddCard(context.Background(), userID, card)
 	assert.Error(suite.T(), err, targetErr)
+}
+
+func (suite *PgStorageSuite) TestCard() {
+	userID := int64(1)
+	card := models.Card{
+		ID:       "testID",
+		FIO:      "fio",
+		Number:   "number",
+		Date:     "date",
+		CVV:      "cvv",
+		MetaInfo: "metainfo",
+		UserID:   userID,
+	}
+
+	columns := []string{"id", "user", "fio", "number", "date", "cvv", "metainfo"}
+	pgxRows := pgxpoolmock.NewRows(columns).
+		AddRow(card.ID, userID, card.FIO, card.Number, card.Date, card.CVV, card.MetaInfo).ToPgxRows()
+	pgxRows.Next()
+
+	suite.mockPool.EXPECT().QueryRow(gomock.Any(), `
+	SELECT "id", "user", "fio", "number", "date", "cvv", "metainfo"
+	FROM "cards"
+	WHERE "user" = $1 and "id" = $2
+	LIMIT 1
+	`, userID, card.ID).Return(pgxRows)
+
+	targetCard, err := suite.store.Card(context.Background(), userID, card.ID)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), *targetCard, card)
+
+	//! Тест на ошибки sql
+	targetErr := errors.New("some error")
+	pgxRows = pgxpoolmock.NewRows(columns).
+		AddRow(card.ID, userID, card.FIO, card.Number, card.Date, card.CVV, card.MetaInfo).
+		RowError(0, targetErr).
+		ToPgxRows()
+	pgxRows.Next()
+
+	suite.mockPool.EXPECT().QueryRow(gomock.Any(), `
+	SELECT "id", "user", "fio", "number", "date", "cvv", "metainfo"
+	FROM "cards"
+	WHERE "user" = $1 and "id" = $2
+	LIMIT 1
+	`, userID, card.ID).Return(pgxRows)
+
+	targetCard, err = suite.store.Card(context.Background(), userID, card.ID)
+	assert.Error(suite.T(), err, targetErr)
+	assert.Nil(suite.T(), targetCard)
 }
 
 func (suite *PgStorageSuite) TestDeleteCard() {
@@ -213,6 +300,52 @@ func (suite *PgStorageSuite) TestAddLogin() {
 
 	err = suite.store.AddLogin(context.Background(), userID, login)
 	assert.Error(suite.T(), err, targetErr)
+}
+
+func (suite *PgStorageSuite) TestLogin() {
+	userID := int64(1)
+	login := models.Login{
+		UserID:   userID,
+		ID:       "testID",
+		Login:    "login",
+		Password: "password",
+		MetaInfo: "metainfo",
+	}
+
+	columns := []string{"id", "user", "login", "password", "metainfo"}
+	pgxRows := pgxpoolmock.NewRows(columns).
+		AddRow(login.ID, userID, login.Login, login.Password, login.MetaInfo).ToPgxRows()
+	pgxRows.Next()
+
+	suite.mockPool.EXPECT().QueryRow(gomock.Any(), `
+	SELECT "id", "user", "login", "password", "metainfo"
+	FROM "logins"
+	WHERE "user" = $1 and "id" = $2
+	LIMIT 1
+	`, userID, login.ID).Return(pgxRows)
+
+	targetLogin, err := suite.store.Login(context.Background(), userID, login.ID)
+	assert.NoError(suite.T(), err)
+	assert.Equal(suite.T(), *targetLogin, login)
+
+	//! Тест на ошибки sql
+	targetErr := errors.New("some error")
+	pgxRows = pgxpoolmock.NewRows(columns).
+		AddRow(login.ID, userID, login.Login, login.Password, login.MetaInfo).
+		RowError(0, targetErr).
+		ToPgxRows()
+	pgxRows.Next()
+
+	suite.mockPool.EXPECT().QueryRow(gomock.Any(), `
+	SELECT "id", "user", "login", "password", "metainfo"
+	FROM "logins"
+	WHERE "user" = $1 and "id" = $2
+	LIMIT 1
+	`, userID, login.ID).Return(pgxRows)
+
+	targetLogin, err = suite.store.Login(context.Background(), userID, login.ID)
+	assert.Error(suite.T(), err, targetErr)
+	assert.Nil(suite.T(), targetLogin)
 }
 
 func (suite *PgStorageSuite) TestDeleteLogin() {
