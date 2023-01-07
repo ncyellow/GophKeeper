@@ -1,0 +1,183 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "grpc/proto";
+
+message User {
+  string login = 1;
+  string password = 2;
+}
+
+message Card {
+  string id = 1;
+  string fio = 2;
+  string number = 3;
+  string date = 4;
+  string cvv = 5;
+  string metainfo = 6;
+}
+
+message Text {
+  string id = 1;
+  string content = 2;
+  string metainfo = 3;
+}
+
+message Binary {
+  string id = 1;
+  bytes data = 2;
+  string metainfo = 3;
+}
+
+message Login {
+  string id = 1;
+  string login = 2;
+  string password = 3;
+  string metainfo = 4;
+}
+
+message AddCardRequest {
+  Card card = 1;
+  int64 user = 2;
+}
+
+message AddCardResponse {
+  string error = 1; // ошибка
+}
+
+message CardRequest {
+  string id = 1;
+  int64 user = 2;
+}
+
+message CardResponse {
+  optional Card card = 1;
+  string error = 2; // ошибка
+}
+
+message DeleteCardRequest {
+  string id = 1;
+  int64 user = 2;
+}
+
+message DeleteCardResponse {
+  string error = 1; // ошибка
+}
+
+message AddLoginRequest {
+  Login login = 1;
+  int64 user = 2;
+}
+
+message AddLoginResponse {
+  string error = 1; // ошибка
+}
+
+message LoginRequest {
+  string id = 1;
+  int64 user = 2;
+}
+
+message LoginResponse {
+  optional Login login = 1;
+  string error = 2; // ошибка
+}
+
+message DeleteLoginRequest {
+  string id = 1;
+  int64 user = 2;
+}
+
+message DeleteLoginResponse {
+  string error = 1; // ошибка
+}
+
+message AddTextRequest {
+  Text text = 1;
+  int64 user = 2;
+}
+
+message AddTextResponse {
+  string error = 1; // ошибка
+}
+
+
+message TextRequest {
+  string id = 1;
+  int64 user = 2;
+}
+
+message TextResponse {
+  optional Text text = 1;
+  string error = 2; // ошибка
+}
+
+message DeleteTextRequest {
+  string id = 1;
+  int64 user = 2;
+}
+
+message DeleteTextResponse {
+  string error = 1; // ошибка
+}
+
+
+message AddBinRequest {
+  Binary binary = 1;
+  int64 user = 2;
+}
+
+message AddBinResponse {
+  string error = 1; // ошибка
+}
+
+
+message BinRequest {
+  string id = 1;
+  int64 user = 2;
+}
+
+message BinResponse {
+  optional Binary binary = 1;
+  string error = 2; // ошибка
+}
+
+message DeleteBinRequest {
+  string id = 1;
+  int64 user = 2;
+}
+
+message DeleteBinResponse {
+  string error = 1; // ошибка
+}
+
+message RegisterRequest {
+  string login = 1;
+  string password = 2;
+}
+
+message RegisterResponse {
+  int64 user = 1;
+  string error = 2; // ошибка
+}
+
+service GophKeeperServer {
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+  rpc SignIn(RegisterRequest) returns (RegisterResponse);
+
+  rpc AddCard(AddCardRequest) returns (AddCardResponse);
+  rpc AddLogin(AddLoginRequest) returns (AddLoginResponse);
+  rpc AddText(AddTextRequest) returns (AddTextResponse);
+  rpc AddBinary(AddBinRequest) returns (AddBinResponse);
+
+  rpc Card(CardRequest) returns (CardResponse);
+  rpc Login(LoginRequest) returns (LoginResponse);
+  rpc Text(TextRequest) returns (TextResponse);
+  rpc Binary(BinRequest) returns (BinResponse);
+
+  rpc DeleteCard(DeleteCardRequest) returns (DeleteCardResponse);
+  rpc DeleteLogin(DeleteLoginRequest) returns (DeleteLoginResponse);
+  rpc DeleteText(DeleteTextRequest) returns (DeleteTextResponse);
+  rpc DeleteBinary(DeleteBinRequest) returns (DeleteBinResponse);
+}

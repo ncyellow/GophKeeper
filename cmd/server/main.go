@@ -4,7 +4,7 @@ import (
 	"fmt"
 
 	"github.com/ncyellow/GophKeeper/internal/server/config"
-	"github.com/ncyellow/GophKeeper/internal/server/httpserver"
+	"github.com/ncyellow/GophKeeper/internal/server/gprcserver"
 )
 
 func main() {
@@ -12,8 +12,14 @@ func main() {
 	fmt.Printf("Build date: %s\n", config.BuildDate)
 	fmt.Println("Server start")
 
-	server := httpserver.HTTPServer{
+	//server := httpserver.HTTPServer{
+	//	Conf: config.ParseConfig(),
+	//}
+	//server.Run()
+
+	server := gprcserver.GRPCServer{
 		Conf: config.ParseConfig(),
 	}
-	server.Run()
+
+	server.RunServer()
 }

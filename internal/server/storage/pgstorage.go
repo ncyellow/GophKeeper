@@ -66,11 +66,11 @@ func (p *PgStorage) UserByLogin(ctx context.Context, login string) (*models.User
 func (p *PgStorage) User(ctx context.Context, login string, password string) (*models.User, error) {
 	var user models.User
 	row := p.pool.QueryRow(ctx, `
-	SELECT "login", "password" FROM "users" WHERE "login" = $1 AND "password" = $2
+	SELECT "@users", "login", "password" FROM "users" WHERE "login" = $1 AND "password" = $2
 	LIMIT 1
 	`, login, password)
 
-	err := row.Scan(&user.Login, &user.Password)
+	err := row.Scan(&user.UserID, &user.Login, &user.Password)
 	if err != nil {
 		return nil, err
 	}
