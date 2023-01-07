@@ -19,10 +19,10 @@ type GRPCServer struct {
 	Conf *config.Config
 }
 
-// RunServer блокирующая функция запуска сервера.
+// Run блокирующая функция запуска сервера.
 // После запуска встает в ожидание os.Interrupt, syscall.SIGINT, syscall.SIGTERM
 // Функция очень похожа на RunServer из http реализации, но тут другой вариант graceful shutdown.
-func (s *GRPCServer) RunServer() {
+func (s *GRPCServer) Run() {
 	store := storage.NewPgStorage(s.Conf)
 
 	listen, err := net.Listen("tcp", s.Conf.GRPCAddress)

@@ -27,8 +27,7 @@ type Console struct {
 
 // CreateExecutor функция обработки всех введенных с клавиатуры команд
 func CreateExecutor(conf *config.Config) func(string) {
-	//sender := api.NewHTTPSender(conf)
-	sender := api.NewGRPCSender(conf)
+	sender := api.CreateSender(conf)
 
 	return func(t string) {
 		s := strings.TrimSpace(t)
