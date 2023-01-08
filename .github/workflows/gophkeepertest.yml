@@ -28,7 +28,7 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Download autotests binaries
-        uses: robinraju/release-downloader@v1.7
+        uses: robinraju/release-downloader@v1.6
         with:
           repository: ncyellow/GophKeeper-autotest-bin
           latest: true
