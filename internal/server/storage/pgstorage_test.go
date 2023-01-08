@@ -77,18 +77,20 @@ func (suite *PgStorageSuite) TestRegister() {
 }
 
 func (suite *PgStorageSuite) TestUser() {
+	newID := int64(1)
 	user := models.User{
+		UserID:   newID,
 		Login:    "login",
 		Password: "pwd",
 	}
 
 	//! Тест на корректную вставку
-	columns := []string{"login", "password"}
-	pgxRows := pgxpoolmock.NewRows(columns).AddRow(user.Login, user.Password).ToPgxRows()
+	columns := []string{"@users", "login", "password"}
+	pgxRows := pgxpoolmock.NewRows(columns).AddRow(newID, user.Login, user.Password).ToPgxRows()
 	pgxRows.Next()
 
 	suite.mockPool.EXPECT().QueryRow(gomock.Any(), `
-	SELECT "login", "password" FROM "users" WHERE "login" = $1 AND "password" = $2
+	SELECT "@users", "login", "password" FROM "users" WHERE "login" = $1 AND "password" = $2
 	LIMIT 1
 	`, user.Login, user.Password).Return(pgxRows)
 
@@ -99,13 +101,13 @@ func (suite *PgStorageSuite) TestUser() {
 	//! Тест на вставку с конфликтами
 	pgxRows = pgxpoolmock.
 		NewRows(columns).
-		AddRow(user.Login, user.Password).
+		AddRow(newID, user.Login, user.Password).
 		RowError(0, pgx.ErrNoRows).
 		ToPgxRows()
 	pgxRows.Next()
 
 	suite.mockPool.EXPECT().QueryRow(gomock.Any(), `
-	SELECT "login", "password" FROM "users" WHERE "login" = $1 AND "password" = $2
+	SELECT "@users", "login", "password" FROM "users" WHERE "login" = $1 AND "password" = $2
 	LIMIT 1
 	`, user.Login, user.Password).Return(pgxRows)
 

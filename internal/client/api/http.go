@@ -8,9 +8,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/ncyellow/GophKeeper/internal/client/config"
 	"github.com/ncyellow/GophKeeper/internal/models"
@@ -36,7 +36,7 @@ func NewHTTPSender(conf *config.Config) *HTTPSender {
 		log.Fatalf("Error creating x509 keypair from client cert file %s and client key file %s", clientCertFile, clientKeyFile)
 	}
 
-	caCert, err := ioutil.ReadFile(caCertFile)
+	caCert, err := os.ReadFile(caCertFile)
 	if err != nil {
 		log.Fatalf("Error opening cert file %s, Error: %s", caCertFile, err)
 	}
