@@ -1,3 +1,4 @@
+// Package gprcserver содержит имплементацию сервера через grpc
 package gprcserver
 
 import (
@@ -14,7 +15,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-// GRPCServer структура сервера
+// GRPCServer структура сервера. Реализует интерфейс Server
 type GRPCServer struct {
 	Conf *config.Config
 }

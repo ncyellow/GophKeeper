@@ -1,3 +1,4 @@
+// Package main содержит запуск сервера.
 package main
 
 import (
@@ -8,10 +9,7 @@ import (
 )
 
 func main() {
-	fmt.Printf("Build version: %s\n", config.BuildVersion)
-	fmt.Printf("Build date: %s\n", config.BuildDate)
 	fmt.Println("Server start")
-
 	server := server.CreateServer(config.ParseConfig())
 	server.Run()
 }

@@ -238,7 +238,7 @@ func (h *Handler) AddCard() http.HandlerFunc {
 	}
 }
 
-// DeleteCard зарегистрировать новую карту
+// DeleteCard удалить карту по пользователю и идентификатору
 func (h *Handler) DeleteCard() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
@@ -259,7 +259,7 @@ func (h *Handler) DeleteCard() http.HandlerFunc {
 	}
 }
 
-// Login вернуть данные конкретной карты
+// Login вернуть данные конкретного логина
 func (h *Handler) Login() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
@@ -290,7 +290,7 @@ func (h *Handler) Login() http.HandlerFunc {
 	}
 }
 
-// AddLogin зарегистрировать новую карту
+// AddLogin зарегистрировать новый логин
 func (h *Handler) AddLogin() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		reqBody, err := io.ReadAll(r.Body)
@@ -324,7 +324,7 @@ func (h *Handler) AddLogin() http.HandlerFunc {
 	}
 }
 
-// DeleteLogin зарегистрировать новую карту
+// DeleteLogin удалить логин по пользователю и идентификатору
 func (h *Handler) DeleteLogin() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
@@ -344,7 +344,7 @@ func (h *Handler) DeleteLogin() http.HandlerFunc {
 	}
 }
 
-// Text вернуть данные конкретной карты
+// Text вернуть данные по конкретному тексту
 func (h *Handler) Text() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
@@ -375,7 +375,7 @@ func (h *Handler) Text() http.HandlerFunc {
 	}
 }
 
-// AddText зарегистрировать новую карту
+// AddText зарегистрировать новый текст по пользователю и идентификатору
 func (h *Handler) AddText() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
@@ -410,7 +410,7 @@ func (h *Handler) AddText() http.HandlerFunc {
 	}
 }
 
-// DeleteText зарегистрировать новую карту
+// DeleteText текст по пользователю и идентификатору
 func (h *Handler) DeleteText() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
@@ -430,7 +430,7 @@ func (h *Handler) DeleteText() http.HandlerFunc {
 	}
 }
 
-// Binary вернуть данные конкретной карты
+// Binary вернуть данные конкретных бинарных данных
 func (h *Handler) Binary() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 
@@ -461,7 +461,7 @@ func (h *Handler) Binary() http.HandlerFunc {
 	}
 }
 
-// AddBinary зарегистрировать новую карту
+// AddBinary зарегистрировать бинарные данные по пользователю и идентификатору
 func (h *Handler) AddBinary() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		reqBody, err := io.ReadAll(r.Body)
@@ -496,7 +496,7 @@ func (h *Handler) AddBinary() http.HandlerFunc {
 	}
 }
 
-// DeleteBinary зарегистрировать новую карту
+// DeleteBinary удалить бинарные данные по пользователю и идентификатору
 func (h *Handler) DeleteBinary() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 

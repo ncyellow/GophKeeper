@@ -14,12 +14,13 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// HTTPServer структура нашего https сервера. Реализует интерфейс Server
 type HTTPServer struct {
 	Conf *config.Config
 }
 
+// Run блокирующая функция по запуску сервера
 func (s *HTTPServer) Run() {
-
 	store := storage.NewPgStorage(s.Conf)
 	router := NewRouter(s.Conf, store, &jwt.DefaultParser{})
 

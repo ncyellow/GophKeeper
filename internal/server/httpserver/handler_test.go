@@ -178,7 +178,7 @@ func (suite *HandlersSuite) TestRegisterHandler() {
 	suite.runTableTests(testData)
 }
 
-// TestRegisterHandler основные тесты по регистрации
+// TestRegisterHandler основные тесты по аутентификации
 func (suite *HandlersSuite) TestSignIn() {
 	testData := []tests{
 		{
@@ -401,7 +401,7 @@ func (suite *HandlersSuite) TestLogin() {
 	suite.runTableTests(testData)
 }
 
-// TestText тесты по запросу логинов
+// TestText тесты по запросу текста
 func (suite *HandlersSuite) TestText() {
 
 	userID := int64(1)
@@ -484,7 +484,7 @@ func (suite *HandlersSuite) TestText() {
 	suite.runTableTests(testData)
 }
 
-// TestText тесты по запросу логинов
+// TestText тесты по запросу бинарных данных
 func (suite *HandlersSuite) TestBin() {
 
 	userID := int64(1)
@@ -705,7 +705,7 @@ func (suite *HandlersSuite) TestDelCard() {
 	suite.runTableTests(testData)
 }
 
-// TestAddLogin тесты по добавлению карт
+// TestAddLogin тесты по добавлению логинов
 func (suite *HandlersSuite) TestAddLogin() {
 
 	userID := int64(1)

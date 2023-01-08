@@ -14,12 +14,27 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// GRPCSender структура http клиента
+// GRPCSender структура grpc клиента. Реализует интерфейс Sender. Все комментарий по соотв. методам см там.
 type GRPCSender struct {
 	conn   *grpc.ClientConn
 	client proto.GophKeeperServerClient
 	conf   *config.Config
 	userID *int64
+}
+
+// NewGRPCSender конструктор
+func NewGRPCSender(conf *config.Config) *GRPCSender {
+	// устанавливаем соединение с сервером
+	conn, err := grpc.Dial(conf.GRPCAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	if err != nil {
+		log.Fatal().Err(err)
+	}
+	client := proto.NewGophKeeperServerClient(conn)
+	return &GRPCSender{
+		conf:   conf,
+		conn:   conn,
+		client: client,
+	}
 }
 
 func (g *GRPCSender) Register(login string, pwd string) error {
@@ -334,18 +349,4 @@ func (g *GRPCSender) DelBin(binID string) error {
 		return ErrInternalServer
 	}
 	return nil
-}
-
-func NewGRPCSender(conf *config.Config) *GRPCSender {
-	// устанавливаем соединение с сервером
-	conn, err := grpc.Dial(conf.GRPCAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
-	if err != nil {
-		log.Fatal().Err(err)
-	}
-	client := proto.NewGophKeeperServerClient(conn)
-	return &GRPCSender{
-		conf:   conf,
-		conn:   conn,
-		client: client,
-	}
 }

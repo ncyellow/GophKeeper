@@ -11,11 +11,14 @@ import (
 	"github.com/ncyellow/GophKeeper/internal/client/config"
 )
 
+// LivePrefixState вспомогательная структура для того,
+// чтобы сделать красивое приглашение с именем авторизованного пользователя
 var LivePrefixState struct {
 	LivePrefix string
 	IsEnable   bool
 }
 
+// changeLivePrefix спец функция для работы с приглашением ввода через библиотеку go-prompt
 func changeLivePrefix() (string, bool) {
 	return LivePrefixState.LivePrefix, LivePrefixState.IsEnable
 }
