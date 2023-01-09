@@ -3,8 +3,6 @@ package config
 
 import (
 	"flag"
-	"os"
-	"path/filepath"
 
 	"github.com/caarlos0/env/v6"
 	"github.com/rs/zerolog/log"
@@ -29,21 +27,16 @@ func ParseConfig() *Config {
 	var cfg Config
 
 	// Тестовый код удалю в конце
-	pwd, _ := os.Getwd()
-	crtFileName := filepath.Join(pwd, "certs", "client.crt")
-	keyFileName := filepath.Join(pwd, "certs", "client.key")
-	caFileName := filepath.Join(pwd, "certs", "ExampleCA.crt")
+	//pwd, _ := os.Getwd()
+	//crtFileName := filepath.Join(pwd, "certs", "client.crt")
+	//keyFileName := filepath.Join(pwd, "certs", "client.key")
+	//caFileName := filepath.Join(pwd, "certs", "ExampleCA.crt")
 
-	flag.StringVar(&cfg.Address, "a", "https://localhost", "address in the format host:port")
-
-	flag.StringVar(&cfg.CryptoCrt, "c", crtFileName, "*.crt filepath for tls")
-	flag.StringVar(&cfg.CryptoKey, "k", keyFileName, "*.key filepath for tls")
-	flag.StringVar(&cfg.CACertFile, "ca", caFileName, "*.key filepath for tls")
-	flag.StringVar(&cfg.GRPCAddress, "g", ":3200", "grpc address in the format host:port")
-
-	//flag.StringVar(&cfg.CryptoCrt, "c", "", "crt filepath for tls")
-	//flag.StringVar(&cfg.CryptoKey, "k", "", "key filepath for tls")
-	//flag.StringVar(&cfg.CACertFile, "ca", "", "crt filepath for ca")
+	flag.StringVar(&cfg.Address, "addr", "https://localhost", "address in the format host:port")
+	flag.StringVar(&cfg.CryptoCrt, "crypto-crt", "", "*.crt filepath")
+	flag.StringVar(&cfg.CryptoKey, "crypto-key", "", "*.key filepath")
+	flag.StringVar(&cfg.CACertFile, "crypto-ca", "", "*.key filepath for ca")
+	flag.StringVar(&cfg.GRPCAddress, "grp-addr", ":3200", "grpc address in the format host:port")
 
 	// Сначала парсим командную строку
 	flag.Parse()
@@ -53,5 +46,7 @@ func ParseConfig() *Config {
 	if err != nil {
 		log.Fatal().Err(err)
 	}
+
+	log.Fatal().Msgf("conf = %#v\n", cfg)
 	return &cfg
 }
