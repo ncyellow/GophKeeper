@@ -3,7 +3,7 @@ package storage
 
 import (
 	"context"
-	"errors"
+	"fmt"
 
 	"github.com/driftprogramming/pgxpoolmock"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -12,8 +12,6 @@ import (
 	"github.com/ncyellow/GophKeeper/internal/models"
 	"github.com/ncyellow/GophKeeper/internal/server/config"
 )
-
-var ErrPgConnect = errors.New("cant connect to pgsql")
 
 type PgStorage struct {
 	conf *config.Config
@@ -24,7 +22,7 @@ type PgStorage struct {
 func NewPgStorage(conf *config.Config) (*PgStorage, error) {
 	pool, err := pgxpool.Connect(context.Background(), conf.DatabaseConn)
 	if err != nil {
-		return nil, ErrPgConnect
+		return nil, fmt.Errorf("cant connect to pgsql: %w", err)
 	}
 
 	store := PgStorage{

@@ -14,10 +14,7 @@ import (
 	"github.com/ncyellow/GophKeeper/internal/server/storage"
 )
 
-var (
-	ErrInvalidLoginPwd = errors.New(`invalid login or password`)
-	ErrInvalidToken    = errors.New(`invalid token`)
-)
+var ErrInvalidToken = errors.New(`invalid token`)
 
 // Claims используем для работы с golang-jwt для подписи токена и его проверки
 type Claims struct {
@@ -43,7 +40,7 @@ func (a *Authorizer) SignIn(ctx context.Context, user *models.User) (string, err
 
 	repoUser, err := a.Store.User(ctx, user.Login, user.Password)
 	if err != nil {
-		return "", ErrInvalidLoginPwd
+		return "", fmt.Errorf("invalid login or password: %w", err)
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &Claims{

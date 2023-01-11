@@ -69,13 +69,13 @@ func (s *HTTPSender) Register(login string, pwd string) error {
 
 	req, err := http.NewRequest("POST", s.Conf.Address+"/api/register", bytes.NewBuffer(result))
 	if err != nil {
-		return ErrRequestPrepare
+		return fmt.Errorf(FmtErrRequestPrepare, err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := s.Client.Do(req)
 	if err != nil {
-		return ErrServerTimout
+		return fmt.Errorf(FmtErrServerTimout, err)
 	}
 	defer resp.Body.Close()
 
@@ -103,13 +103,13 @@ func (s *HTTPSender) SignIn(login string, pwd string) error {
 
 	req, err := http.NewRequest("POST", s.Conf.Address+"/api/signin", bytes.NewBuffer(result))
 	if err != nil {
-		return ErrRequestPrepare
+		return fmt.Errorf(FmtErrRequestPrepare, err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
 	resp, err := s.Client.Do(req)
 	if err != nil {
-		return ErrServerTimout
+		return fmt.Errorf(FmtErrServerTimout, err)
 	}
 	defer resp.Body.Close()
 
@@ -140,7 +140,7 @@ func (s *HTTPSender) Card(cardID string) (*models.Card, error) {
 	err = json.Unmarshal(data, &card)
 
 	if err != nil {
-		return nil, ErrDeserialization
+		return nil, fmt.Errorf(FmtErrDeserialization, err)
 	}
 	return &card, nil
 }
@@ -167,7 +167,7 @@ func (s *HTTPSender) Login(loginID string) (*models.Login, error) {
 	err = json.Unmarshal(data, &login)
 
 	if err != nil {
-		return nil, ErrDeserialization
+		return nil, fmt.Errorf(FmtErrDeserialization, err)
 	}
 	return &login, nil
 }
@@ -194,7 +194,7 @@ func (s *HTTPSender) Text(textID string) (*models.Text, error) {
 	var text models.Text
 	err = json.Unmarshal(data, &text)
 	if err != nil {
-		return nil, ErrDeserialization
+		return nil, fmt.Errorf(FmtErrDeserialization, err)
 	}
 	return &text, nil
 }
@@ -221,7 +221,7 @@ func (s *HTTPSender) Bin(binID string) (*models.Binary, error) {
 	err = json.Unmarshal(data, &binary)
 
 	if err != nil {
-		return nil, ErrDeserialization
+		return nil, fmt.Errorf(FmtErrDeserialization, err)
 	}
 	return &binary, nil
 }
@@ -238,14 +238,14 @@ func (s *HTTPSender) add(data []byte, urlSuffix string) error {
 
 	req, err := http.NewRequest("POST", s.Conf.Address+urlSuffix, bytes.NewBuffer(data))
 	if err != nil {
-		return ErrRequestPrepare
+		return fmt.Errorf(FmtErrRequestPrepare, err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", *s.AuthToken)
 
 	resp, err := s.Client.Do(req)
 	if err != nil {
-		return ErrServerTimout
+		return fmt.Errorf(FmtErrServerTimout, err)
 	}
 	defer resp.Body.Close()
 
@@ -265,13 +265,13 @@ func (s *HTTPSender) read(textID string, urlSuffix string) ([]byte, error) {
 
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/%s", s.Conf.Address, urlSuffix, textID), nil)
 	if err != nil {
-		return nil, ErrRequestPrepare
+		return nil, fmt.Errorf(FmtErrRequestPrepare, err)
 	}
 	req.Header.Set("Authorization", *s.AuthToken)
 
 	resp, err := s.Client.Do(req)
 	if err != nil {
-		return nil, ErrServerTimout
+		return nil, fmt.Errorf(FmtErrServerTimout, err)
 	}
 	defer resp.Body.Close()
 
@@ -286,7 +286,7 @@ func (s *HTTPSender) read(textID string, urlSuffix string) ([]byte, error) {
 	reqBody, err := io.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return nil, ErrSerialization
+		return nil, fmt.Errorf(FmtErrSerialization, err)
 	}
 	return reqBody, nil
 }
@@ -299,14 +299,14 @@ func (s *HTTPSender) del(binID string, urlSuffix string) error {
 
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/%s/%s", s.Conf.Address, urlSuffix, binID), nil)
 	if err != nil {
-		return ErrRequestPrepare
+		return fmt.Errorf(FmtErrRequestPrepare, err)
 	}
 
 	req.Header.Set("Authorization", *s.AuthToken)
 
 	resp, err := s.Client.Do(req)
 	if err != nil {
-		return ErrServerTimout
+		return fmt.Errorf(FmtErrServerTimout, err)
 	}
 	defer resp.Body.Close()
 

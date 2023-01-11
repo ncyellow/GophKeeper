@@ -45,12 +45,11 @@ func (g *GRPCSender) Register(login string, pwd string) error {
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			if e.Code() == codes.AlreadyExists {
-				return ErrUserAlreadyExists
+				return fmt.Errorf(FmtErrUserAlreadyExists, err)
 			}
 		}
-		return ErrInternalServer
+		return fmt.Errorf(FmtErrInternalServer, err)
 	}
-
 	userID := response.GetUser()
 	g.userID = &userID
 
@@ -67,10 +66,10 @@ func (g *GRPCSender) SignIn(login string, pwd string) error {
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			if e.Code() == codes.AlreadyExists {
-				return ErrUserAlreadyExists
+				return fmt.Errorf(FmtErrUserAlreadyExists, err)
 			}
 		}
-		return ErrInternalServer
+		return fmt.Errorf(FmtErrInternalServer, err)
 	}
 
 	userID := response.GetUser()
@@ -84,7 +83,6 @@ func (g *GRPCSender) AddCard(card *models.Card) error {
 	if g.userID == nil {
 		return ErrAuthRequire
 	}
-
 	_, err := g.client.AddCard(context.Background(), &proto2.AddCardRequest{
 		Card: &proto2.Card{
 			Id:       card.ID,
@@ -99,10 +97,10 @@ func (g *GRPCSender) AddCard(card *models.Card) error {
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			if e.Code() == codes.AlreadyExists {
-				return ErrAlreadyExists
+				return fmt.Errorf(FmtErrAlreadyExists, err)
 			}
 		}
-		return ErrInternalServer
+		return fmt.Errorf(FmtErrInternalServer, err)
 	}
 	return nil
 }
@@ -119,10 +117,10 @@ func (g *GRPCSender) Card(cardID string) (*models.Card, error) {
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			if e.Code() == codes.NotFound {
-				return nil, ErrNotFound
+				return nil, fmt.Errorf(FmtErrNotFound, err)
 			}
 		}
-		return nil, ErrInternalServer
+		return nil, fmt.Errorf(FmtErrInternalServer, err)
 	}
 
 	respCard := response.GetCard()
@@ -145,7 +143,7 @@ func (g *GRPCSender) DelCard(cardID string) error {
 		User: *g.userID,
 	})
 	if err != nil {
-		return ErrInternalServer
+		return fmt.Errorf(FmtErrInternalServer, err)
 	}
 	return nil
 }
@@ -167,10 +165,10 @@ func (g *GRPCSender) AddLogin(login *models.Login) error {
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			if e.Code() == codes.AlreadyExists {
-				return ErrAlreadyExists
+				return fmt.Errorf(FmtErrAlreadyExists, err)
 			}
 		}
-		return ErrInternalServer
+		return fmt.Errorf(FmtErrInternalServer, err)
 	}
 	return nil
 }
@@ -187,10 +185,10 @@ func (g *GRPCSender) Login(loginID string) (*models.Login, error) {
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			if e.Code() == codes.NotFound {
-				return nil, ErrNotFound
+				return nil, fmt.Errorf(FmtErrNotFound, err)
 			}
 		}
-		return nil, ErrInternalServer
+		return nil, fmt.Errorf(FmtErrInternalServer, err)
 	}
 
 	respLogin := response.GetLogin()
@@ -211,7 +209,7 @@ func (g *GRPCSender) DelLogin(loginID string) error {
 		User: *g.userID,
 	})
 	if err != nil {
-		return ErrInternalServer
+		return fmt.Errorf(FmtErrInternalServer, err)
 	}
 	return nil
 }
@@ -232,10 +230,10 @@ func (g *GRPCSender) AddText(text *models.Text) error {
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			if e.Code() == codes.AlreadyExists {
-				return ErrAlreadyExists
+				return fmt.Errorf(FmtErrAlreadyExists, err)
 			}
 		}
-		return ErrInternalServer
+		return fmt.Errorf(FmtErrInternalServer, err)
 	}
 	return nil
 }
@@ -252,10 +250,10 @@ func (g *GRPCSender) Text(textID string) (*models.Text, error) {
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			if e.Code() == codes.NotFound {
-				return nil, ErrNotFound
+				return nil, fmt.Errorf(FmtErrNotFound, err)
 			}
 		}
-		return nil, ErrInternalServer
+		return nil, fmt.Errorf(FmtErrInternalServer, err)
 	}
 
 	respText := response.GetText()
@@ -275,7 +273,7 @@ func (g *GRPCSender) DelText(textID string) error {
 		User: *g.userID,
 	})
 	if err != nil {
-		return ErrInternalServer
+		return fmt.Errorf(FmtErrInternalServer, err)
 	}
 	return nil
 }
@@ -296,10 +294,10 @@ func (g *GRPCSender) AddBin(binary *models.Binary) error {
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			if e.Code() == codes.AlreadyExists {
-				return ErrAlreadyExists
+				return fmt.Errorf(FmtErrAlreadyExists, err)
 			}
 		}
-		return ErrInternalServer
+		return fmt.Errorf(FmtErrInternalServer, err)
 	}
 	return nil
 }
@@ -316,10 +314,10 @@ func (g *GRPCSender) Bin(binID string) (*models.Binary, error) {
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			if e.Code() == codes.NotFound {
-				return nil, ErrNotFound
+				return nil, fmt.Errorf(FmtErrNotFound, err)
 			}
 		}
-		return nil, ErrInternalServer
+		return nil, fmt.Errorf(FmtErrInternalServer, err)
 	}
 
 	respText := response.GetBinary()
@@ -339,7 +337,7 @@ func (g *GRPCSender) DelBin(binID string) error {
 		User: *g.userID,
 	})
 	if err != nil {
-		return ErrInternalServer
+		return fmt.Errorf(FmtErrInternalServer, err)
 	}
 	return nil
 }
