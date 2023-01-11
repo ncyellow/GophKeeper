@@ -14,12 +14,18 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// HTTPServer структура нашего https сервера. Реализует интерфейс Server
 type HTTPServer struct {
 	Conf *config.Config
 }
 
+// Run блокирующая функция по запуску сервера
 func (s *HTTPServer) Run() {
-	store := storage.NewPgStorage(s.Conf)
+	store, err := storage.NewPgStorage(s.Conf)
+	if err != nil {
+		log.Fatal().Err(err)
+	}
+
 	router := NewRouter(s.Conf, store, &jwt.DefaultParser{})
 
 	srv := http.Server{
@@ -45,7 +51,7 @@ func (s *HTTPServer) Run() {
 	}()
 
 	go func() {
-		if err := http.ListenAndServe(s.Conf.Address, router); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServeTLS(s.Conf.CryptoCrt, s.Conf.CryptoKey); err != nil && err != http.ErrServerClosed {
 			log.Error().Msgf("listen: %s", err)
 		}
 	}()

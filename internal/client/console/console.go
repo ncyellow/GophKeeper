@@ -11,11 +11,14 @@ import (
 	"github.com/ncyellow/GophKeeper/internal/client/config"
 )
 
+// LivePrefixState вспомогательная структура для того,
+// чтобы сделать красивое приглашение с именем авторизованного пользователя
 var LivePrefixState struct {
 	LivePrefix string
 	IsEnable   bool
 }
 
+// changeLivePrefix спец функция для работы с приглашением ввода через библиотеку go-prompt
 func changeLivePrefix() (string, bool) {
 	return LivePrefixState.LivePrefix, LivePrefixState.IsEnable
 }
@@ -27,7 +30,8 @@ type Console struct {
 
 // CreateExecutor функция обработки всех введенных с клавиатуры команд
 func CreateExecutor(conf *config.Config) func(string) {
-	sender := api.NewHTTPSender(conf)
+	sender := api.CreateSender(conf)
+
 	return func(t string) {
 		s := strings.TrimSpace(t)
 		commands := strings.Split(s, " ")
@@ -210,7 +214,6 @@ func completer(d prompt.Document) []prompt.Suggest {
 
 		words := strings.Split(d.Text, " ")
 		if len(words) == 1 {
-
 			s = []prompt.Suggest{
 				{Text: "register", Description: "Create new user"},
 				{Text: "signin", Description: "SignIn user"},

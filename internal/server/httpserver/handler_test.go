@@ -45,7 +45,6 @@ type HandlersSuite struct {
 // SetupSuite перед началом теста стартуем новый сервер httptest.Server делаем так, чтобы тестировать каждый
 // handler отдельно и не сливать все тесты в один
 func (suite *HandlersSuite) SetupTest() {
-
 	ctrl := gomock.NewController(suite.T())
 	defer ctrl.Finish()
 
@@ -139,7 +138,7 @@ func (suite *HandlersSuite) TestRegisterHandler() {
 				// Регистрация успешная вернулся id без ошибок
 				suite.store.EXPECT().Register(gomock.Any(), models.User{
 					Login:    "login",
-					Password: "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8", //sha1
+					Password: "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8", // sha1
 				}).Return(int64(1), nil)
 
 				// После регистрации аутентификация
@@ -165,7 +164,7 @@ func (suite *HandlersSuite) TestRegisterHandler() {
 				// Регистрация успешная вернулся id без ошибок
 				suite.store.EXPECT().Register(gomock.Any(), models.User{
 					Login:    "login",
-					Password: "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8", //sha1
+					Password: "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8", // sha1
 				}).Return(int64(0), errors.New("SomeError"))
 			},
 			want: want{
@@ -178,7 +177,7 @@ func (suite *HandlersSuite) TestRegisterHandler() {
 	suite.runTableTests(testData)
 }
 
-// TestRegisterHandler основные тесты по регистрации
+// TestRegisterHandler основные тесты по аутентификации
 func (suite *HandlersSuite) TestSignIn() {
 	testData := []tests{
 		{
@@ -234,7 +233,6 @@ func (suite *HandlersSuite) TestSignIn() {
 
 // TestCard тесты по чтение карт
 func (suite *HandlersSuite) TestCard() {
-
 	userID := int64(1)
 	cardID := "testID"
 	url := fmt.Sprintf("/api/card/%s", cardID)
@@ -319,7 +317,6 @@ func (suite *HandlersSuite) TestCard() {
 
 // TestLogin тесты по запросу логинов
 func (suite *HandlersSuite) TestLogin() {
-
 	userID := int64(1)
 	loginID := "testID"
 	url := fmt.Sprintf("/api/login/%s", loginID)
@@ -401,9 +398,8 @@ func (suite *HandlersSuite) TestLogin() {
 	suite.runTableTests(testData)
 }
 
-// TestText тесты по запросу логинов
+// TestText тесты по запросу текста
 func (suite *HandlersSuite) TestText() {
-
 	userID := int64(1)
 	textID := "testID"
 	url := fmt.Sprintf("/api/txt/%s", textID)
@@ -484,9 +480,8 @@ func (suite *HandlersSuite) TestText() {
 	suite.runTableTests(testData)
 }
 
-// TestText тесты по запросу логинов
+// TestText тесты по запросу бинарных данных
 func (suite *HandlersSuite) TestBin() {
-
 	userID := int64(1)
 	binID := "testID"
 	url := fmt.Sprintf("/api/bin/%s", binID)
@@ -569,7 +564,6 @@ func (suite *HandlersSuite) TestBin() {
 
 // TestAddCard тесты по добавлению карт
 func (suite *HandlersSuite) TestAddCard() {
-
 	userID := int64(1)
 	cardID := "testID"
 	url := "/api/card"
@@ -653,7 +647,6 @@ func (suite *HandlersSuite) TestAddCard() {
 
 // TestDelCard тесты по удалению карт
 func (suite *HandlersSuite) TestDelCard() {
-
 	userID := int64(1)
 	cardID := "testID"
 	url := fmt.Sprintf("/api/card/%s", cardID)
@@ -705,9 +698,8 @@ func (suite *HandlersSuite) TestDelCard() {
 	suite.runTableTests(testData)
 }
 
-// TestAddLogin тесты по добавлению карт
+// TestAddLogin тесты по добавлению логинов
 func (suite *HandlersSuite) TestAddLogin() {
-
 	userID := int64(1)
 	loginID := "testID"
 	url := "/api/login"
@@ -788,7 +780,6 @@ func (suite *HandlersSuite) TestAddLogin() {
 
 // TestDelLogin тесты по удалению логинов
 func (suite *HandlersSuite) TestDelLogin() {
-
 	userID := int64(1)
 	loginID := "testID"
 	url := fmt.Sprintf("/api/login/%s", loginID)
@@ -842,7 +833,6 @@ func (suite *HandlersSuite) TestDelLogin() {
 
 // TestAddText тесты по добавлению текста
 func (suite *HandlersSuite) TestAddText() {
-
 	userID := int64(1)
 	textID := "testID"
 	url := "/api/txt"
@@ -922,7 +912,6 @@ func (suite *HandlersSuite) TestAddText() {
 
 // TestDelText тесты по удалению текстов
 func (suite *HandlersSuite) TestDelText() {
-
 	userID := int64(1)
 	textID := "testID"
 	url := fmt.Sprintf("/api/txt/%s", textID)
@@ -976,7 +965,6 @@ func (suite *HandlersSuite) TestDelText() {
 
 // TestAddBin тесты по добавлению binary
 func (suite *HandlersSuite) TestAddBin() {
-
 	userID := int64(1)
 	binID := "testID"
 	url := "/api/bin"
@@ -1056,7 +1044,6 @@ func (suite *HandlersSuite) TestAddBin() {
 
 // TestDelBin тесты по удалению binary
 func (suite *HandlersSuite) TestDelBin() {
-
 	userID := int64(1)
 	binID := "testID"
 	url := fmt.Sprintf("/api/bin/%s", binID)
