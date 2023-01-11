@@ -26,10 +26,10 @@ func ParseConfig() (*Config, error) {
 	var cfg Config
 
 	// Тестовый код удалю в конце
-	// pwd, _ := os.Getwd()
-	// crtFileName := filepath.Join(pwd, "certs", "client.crt")
-	// keyFileName := filepath.Join(pwd, "certs", "client.key")
-	// caFileName := filepath.Join(pwd, "certs", "ExampleCA.crt")
+	//pwd, _ := os.Getwd()
+	//crtFileName := filepath.Join(pwd, "certs", "client.crt")
+	//keyFileName := filepath.Join(pwd, "certs", "client.key")
+	//caFileName := filepath.Join(pwd, "certs", "ExampleCA.crt")
 
 	flag.StringVar(&cfg.Address, "addr", "https://localhost", "address in the format host:port")
 	flag.StringVar(&cfg.CryptoCrt, "crypto-crt", "", "*.crt filepath")

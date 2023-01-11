@@ -32,8 +32,7 @@ func ParseConfig() (*Config, error) {
 
 	flag.StringVar(&cfg.Address, "addr", ":443", "address in the format host:port")
 	flag.StringVar(&cfg.GRPCAddress, "grpc-addr", ":3200", "grpc address in the format host:port")
-	flag.StringVar(&cfg.DatabaseConn, "dns", "user=postgres password=12345 host=localhost port=5433 dbname=gophkeep", "connection string to postgresql")
-
+	flag.StringVar(&cfg.DatabaseConn, "dns", "", "connection string to postgresql")
 	flag.StringVar(&cfg.CryptoCrt, "crypto-crt", "", "*.crt filepath for tls")
 	flag.StringVar(&cfg.CryptoKey, "crypto-key", "", "*.key filepath for tls")
 

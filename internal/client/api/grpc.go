@@ -71,11 +71,8 @@ func (g *GRPCSender) SignIn(login string, pwd string) error {
 		}
 		return fmt.Errorf(FmtErrInternalServer, err)
 	}
-
 	userID := response.GetUser()
 	g.userID = &userID
-	fmt.Printf("userid = %d", userID)
-	fmt.Printf("userid = %d", *g.userID)
 	return nil
 }
 
