@@ -24,7 +24,10 @@ type GRPCServer struct {
 // После запуска встает в ожидание os.Interrupt, syscall.SIGINT, syscall.SIGTERM
 // Функция очень похожа на RunServer из http реализации, но тут другой вариант graceful shutdown.
 func (s *GRPCServer) Run() {
-	store := storage.NewPgStorage(s.Conf)
+	store, err := storage.NewPgStorage(s.Conf)
+	if err != nil {
+		log.Fatal().Err(err)
+	}
 
 	listen, err := net.Listen("tcp", s.Conf.GRPCAddress)
 	if err != nil {

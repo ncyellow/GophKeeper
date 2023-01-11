@@ -21,7 +21,11 @@ type HTTPServer struct {
 
 // Run блокирующая функция по запуску сервера
 func (s *HTTPServer) Run() {
-	store := storage.NewPgStorage(s.Conf)
+	store, err := storage.NewPgStorage(s.Conf)
+	if err != nil {
+		log.Fatal().Err(err)
+	}
+
 	router := NewRouter(s.Conf, store, &jwt.DefaultParser{})
 
 	srv := http.Server{

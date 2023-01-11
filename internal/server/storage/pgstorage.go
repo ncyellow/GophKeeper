@@ -3,6 +3,7 @@ package storage
 
 import (
 	"context"
+	"errors"
 
 	"github.com/driftprogramming/pgxpoolmock"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -11,23 +12,27 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+var (
+	ErrPgConnect = errors.New("cant connect to pgsql")
+)
+
 type PgStorage struct {
 	conf *config.Config
 	pool pgxpoolmock.PgxPool
 }
 
 // NewPgStorage конструктор хранилища на основе postgresql, явно не используется, только через фабрику
-func NewPgStorage(conf *config.Config) *PgStorage {
+func NewPgStorage(conf *config.Config) (*PgStorage, error) {
 	pool, err := pgxpool.Connect(context.Background(), conf.DatabaseConn)
 	if err != nil {
-		log.Fatal().Msg("cant connect to pgsql")
+		return nil, ErrPgConnect
 	}
 
 	store := PgStorage{
 		conf: conf,
 		pool: pool,
 	}
-	return &store
+	return &store, nil
 }
 
 func (p *PgStorage) Close() {
