@@ -31,8 +31,7 @@ type Authorizer struct {
 }
 
 // DefaultParser дефолтный парсер токенов jwt
-type DefaultParser struct {
-}
+type DefaultParser struct{}
 
 // SignIn - проверяет есть ли такой пользователь в базе и генерируем токен
 func (a *Authorizer) SignIn(ctx context.Context, user *models.User) (string, error) {
@@ -64,7 +63,6 @@ func (p *DefaultParser) ParseToken(accessToken string, signingKey []byte) (strin
 		}
 		return signingKey, nil
 	})
-
 	if err != nil {
 		return "", err
 	}

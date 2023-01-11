@@ -42,7 +42,6 @@ func (g *GRPCSender) Register(login string, pwd string) error {
 		Login:    login,
 		Password: pwd,
 	})
-
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			if e.Code() == codes.AlreadyExists {
@@ -65,7 +64,6 @@ func (g *GRPCSender) SignIn(login string, pwd string) error {
 		Login:    login,
 		Password: pwd,
 	})
-
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			if e.Code() == codes.AlreadyExists {
@@ -83,7 +81,6 @@ func (g *GRPCSender) SignIn(login string, pwd string) error {
 }
 
 func (g *GRPCSender) AddCard(card *models.Card) error {
-
 	if g.userID == nil {
 		return ErrAuthRequire
 	}
@@ -99,7 +96,6 @@ func (g *GRPCSender) AddCard(card *models.Card) error {
 		},
 		User: *g.userID,
 	})
-
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			if e.Code() == codes.AlreadyExists {
@@ -168,7 +164,6 @@ func (g *GRPCSender) AddLogin(login *models.Login) error {
 		},
 		User: *g.userID,
 	})
-
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			if e.Code() == codes.AlreadyExists {
@@ -234,7 +229,6 @@ func (g *GRPCSender) AddText(text *models.Text) error {
 		},
 		User: *g.userID,
 	})
-
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			if e.Code() == codes.AlreadyExists {
@@ -299,7 +293,6 @@ func (g *GRPCSender) AddBin(binary *models.Binary) error {
 		},
 		User: *g.userID,
 	})
-
 	if err != nil {
 		if e, ok := status.FromError(err); ok {
 			if e.Code() == codes.AlreadyExists {

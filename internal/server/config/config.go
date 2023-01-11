@@ -27,9 +27,9 @@ type Config struct {
 func ParseConfig() *Config {
 	var cfg Config
 
-	//pwd, _ := os.Getwd()
-	//crtFileName := filepath.Join(pwd, "certs", "localhost.crt")
-	//keyFileName := filepath.Join(pwd, "certs", "localhost.key")
+	// pwd, _ := os.Getwd()
+	// crtFileName := filepath.Join(pwd, "certs", "localhost.crt")
+	// keyFileName := filepath.Join(pwd, "certs", "localhost.key")
 
 	flag.StringVar(&cfg.Address, "addr", ":443", "address in the format host:port")
 	flag.StringVar(&cfg.GRPCAddress, "grpc-addr", ":3200", "grpc address in the format host:port")

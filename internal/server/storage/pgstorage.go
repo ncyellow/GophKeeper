@@ -18,7 +18,6 @@ type PgStorage struct {
 
 // NewPgStorage конструктор хранилища на основе postgresql, явно не используется, только через фабрику
 func NewPgStorage(conf *config.Config) *PgStorage {
-
 	pool, err := pgxpool.Connect(context.Background(), conf.DatabaseConn)
 	if err != nil {
 		log.Fatal().Msg("cant connect to pgsql")
@@ -41,7 +40,6 @@ func (p *PgStorage) Register(ctx context.Context, user models.User) (int64, erro
 	INSERT INTO "users"("login", "password")
 	VALUES ($1, $2)
 	returning "@users"`, user.Login, user.Password).Scan(&lastInsertID)
-
 	// так как логин у нас уникален, то при попытке вставить второй одинаковый логин будет ошибка
 	if err != nil {
 		return lastInsertID, err
@@ -84,7 +82,6 @@ func (p *PgStorage) AddCard(ctx context.Context, userID int64, card models.Card)
 	VALUES ($1, $2, $3, $4, $5, $6, $7)
 	returning "@cards"
 	`, card.ID, userID, card.FIO, card.Number, card.Date, card.CVV, card.MetaInfo).Scan(&lastInsertID)
-
 	// так как логин у нас уникален, то при попытке вставить второй одинаковый логин будет ошибка
 	if err != nil {
 		return err
@@ -102,7 +99,6 @@ func (p *PgStorage) Card(ctx context.Context, userID int64, cardID string) (*mod
 	WHERE "user" = $1 and "id" = $2
 	LIMIT 1
 	`, userID, cardID).Scan(&card.ID, &card.UserID, &card.FIO, &card.Number, &card.Date, &card.CVV, &card.MetaInfo)
-
 	if err != nil {
 		return nil, err
 	}
@@ -125,7 +121,6 @@ func (p *PgStorage) AddLogin(ctx context.Context, userID int64, login models.Log
 	VALUES ($1, $2, $3, $4, $5)
 	returning "@logins"
 	`, login.ID, userID, login.Login, login.Password, login.MetaInfo).Scan(&lastInsertID)
-
 	if err != nil {
 		return err
 	}
@@ -142,7 +137,6 @@ func (p *PgStorage) Login(ctx context.Context, userID int64, loginID string) (*m
 	WHERE "user" = $1 and "id" = $2
 	LIMIT 1
 	`, userID, loginID).Scan(&login.ID, &login.UserID, &login.Login, &login.Password, &login.MetaInfo)
-
 	if err != nil {
 		return nil, err
 	}
@@ -165,7 +159,6 @@ func (p *PgStorage) AddText(ctx context.Context, userID int64, text models.Text)
 	VALUES ($1, $2, $3, $4)
 	returning "@text"
 	`, text.ID, userID, text.Content, text.MetaInfo).Scan(&lastInsertID)
-
 	if err != nil {
 		return err
 	}
@@ -182,7 +175,6 @@ func (p *PgStorage) Text(ctx context.Context, userID int64, textID string) (*mod
 	WHERE "user" = $1 and "id" = $2
 	LIMIT 1
 	`, userID, textID).Scan(&text.ID, &text.UserID, &text.Content, &text.MetaInfo)
-
 	if err != nil {
 		return nil, err
 	}
@@ -205,14 +197,12 @@ func (p *PgStorage) AddBinary(ctx context.Context, userID int64, binData models.
 	VALUES ($1, $2, $3, $4)
 	returning "@bin"
 	`, binData.ID, userID, binData.Data, binData.MetaInfo).Scan(&lastInsertID)
-
 	if err != nil {
 		return err
 	}
 	log.Info().Msgf("Новые бинарные данные с идентификатором - %s добавлены. @bin - %d",
 		binData.ID, lastInsertID)
 	return nil
-
 }
 
 func (p *PgStorage) Binary(ctx context.Context, userID int64, binID string) (*models.Binary, error) {
@@ -224,7 +214,6 @@ func (p *PgStorage) Binary(ctx context.Context, userID int64, binID string) (*mo
 	WHERE "user" = $1 and "id" = $2
 	LIMIT 1
 	`, userID, binID).Scan(&binary.ID, &binary.UserID, &binary.Data, &binary.MetaInfo)
-
 	if err != nil {
 		return nil, err
 	}

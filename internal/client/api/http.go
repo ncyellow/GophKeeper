@@ -93,7 +93,6 @@ func (s *HTTPSender) Register(login string, pwd string) error {
 }
 
 func (s *HTTPSender) SignIn(login string, pwd string) error {
-
 	user := models.User{
 		Login:    login,
 		Password: pwd,

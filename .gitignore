@@ -3,3 +3,4 @@
 .idea/dataSources.xml
 cmd/client/client
 cmd/server/server
+.idea/watcherTasks.xml

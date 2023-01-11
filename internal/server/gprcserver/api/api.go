@@ -47,7 +47,6 @@ func (s *GRPCServer) Register(ctx context.Context, req *proto.RegisterRequest) (
 
 	// Выполняем попытку регистрации
 	_, err := s.repo.Register(ctx, user)
-
 	if err != nil {
 		return nil, status.Error(codes.AlreadyExists, "")
 	}
@@ -99,7 +98,6 @@ func (s *GRPCServer) AddCard(ctx context.Context, req *proto.AddCardRequest) (*p
 		CVV:      card.GetCvv(),
 		MetaInfo: card.GetMetainfo(),
 	})
-
 	if err != nil {
 		return nil, status.Error(codes.AlreadyExists, "")
 	}
@@ -117,7 +115,6 @@ func (s *GRPCServer) AddLogin(ctx context.Context, req *proto.AddLoginRequest) (
 		Password: login.GetPassword(),
 		MetaInfo: login.GetMetainfo(),
 	})
-
 	if err != nil {
 		return nil, status.Error(codes.AlreadyExists, "")
 	}
@@ -134,7 +131,6 @@ func (s *GRPCServer) AddText(ctx context.Context, req *proto.AddTextRequest) (*p
 		Content:  text.GetContent(),
 		MetaInfo: text.GetMetainfo(),
 	})
-
 	if err != nil {
 		return nil, status.Error(codes.AlreadyExists, "")
 	}
@@ -151,7 +147,6 @@ func (s *GRPCServer) AddBinary(ctx context.Context, req *proto.AddBinRequest) (*
 		Data:     text.GetData(),
 		MetaInfo: text.GetMetainfo(),
 	})
-
 	if err != nil {
 		return nil, status.Error(codes.AlreadyExists, "")
 	}
@@ -254,7 +249,6 @@ func (s *GRPCServer) DeleteCard(ctx context.Context, req *proto.DeleteCardReques
 	err := s.repo.DeleteCard(ctx, userID, dataID)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "")
-
 	}
 	return &response, nil
 }
@@ -267,7 +261,6 @@ func (s *GRPCServer) DeleteLogin(ctx context.Context, req *proto.DeleteLoginRequ
 	err := s.repo.DeleteLogin(ctx, userID, dataID)
 	if err != nil {
 		return nil, status.Error(codes.Internal, "")
-
 	}
 	return &response, nil
 }

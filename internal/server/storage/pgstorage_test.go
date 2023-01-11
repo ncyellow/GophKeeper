@@ -248,7 +248,6 @@ func (suite *PgStorageSuite) TestCard() {
 }
 
 func (suite *PgStorageSuite) TestDeleteCard() {
-
 	userID := int64(1)
 	cardID := "testID"
 
@@ -351,7 +350,6 @@ func (suite *PgStorageSuite) TestLogin() {
 }
 
 func (suite *PgStorageSuite) TestDeleteLogin() {
-
 	userID := int64(1)
 	loginID := "testID"
 
@@ -453,7 +451,6 @@ func (suite *PgStorageSuite) TestText() {
 }
 
 func (suite *PgStorageSuite) TestDeleteText() {
-
 	userID := int64(1)
 	textID := "testID"
 
@@ -555,7 +552,6 @@ func (suite *PgStorageSuite) TestBinary() {
 }
 
 func (suite *PgStorageSuite) TestDeleteBinary() {
-
 	userID := int64(1)
 	binID := "testID"
 

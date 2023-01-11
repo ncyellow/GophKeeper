@@ -42,7 +42,6 @@ type Handler struct {
 
 // NewRouter конструктор нашего объекта роутинга
 func NewRouter(conf *config.Config, store storage.Storage, parser jwt.Parser) chi.Router {
-
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Logger)
@@ -134,7 +133,6 @@ func (h *Handler) Register() http.HandlerFunc {
 		user.Password = originalPassword
 		// Генерация токена если регистрация успешна
 		jwtToken, err := h.authorizer.SignIn(r.Context(), &user)
-
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
 			rw.Write([]byte("invalid login"))
@@ -175,7 +173,6 @@ func (h *Handler) SignIn() http.HandlerFunc {
 
 		// Попытка аутентификации если проходит - генерируем токен
 		jwtToken, err := h.authorizer.SignIn(r.Context(), &user)
-
 		// либо 200, либо 401
 		if err != nil {
 			rw.WriteHeader(http.StatusUnauthorized)
@@ -201,7 +198,6 @@ func (h *Handler) SignIn() http.HandlerFunc {
 // @Router /api/card/{id} [get]
 func (h *Handler) Card() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-
 		cardID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
@@ -287,7 +283,6 @@ func (h *Handler) AddCard() http.HandlerFunc {
 // @Router /api/card [delete]
 func (h *Handler) DeleteCard() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-
 		cardID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
@@ -301,7 +296,6 @@ func (h *Handler) DeleteCard() http.HandlerFunc {
 		rw.Header().Set("Content-Type", "application/json")
 		rw.WriteHeader(http.StatusOK)
 		rw.Write([]byte("ok"))
-
 	}
 }
 
@@ -318,7 +312,6 @@ func (h *Handler) DeleteCard() http.HandlerFunc {
 // @Router /api/login/{id} [get]
 func (h *Handler) Login() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-
 		loginID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
@@ -404,7 +397,6 @@ func (h *Handler) AddLogin() http.HandlerFunc {
 // @Router /api/login [delete]
 func (h *Handler) DeleteLogin() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-
 		loginID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
@@ -434,7 +426,6 @@ func (h *Handler) DeleteLogin() http.HandlerFunc {
 // @Router /api/text/{id} [get]
 func (h *Handler) Text() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-
 		textID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
@@ -477,7 +468,6 @@ func (h *Handler) Text() http.HandlerFunc {
 // @Router /api/text [post]
 func (h *Handler) AddText() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-
 		reqBody, err := io.ReadAll(r.Body)
 		defer r.Body.Close()
 		if err != nil {
@@ -521,7 +511,6 @@ func (h *Handler) AddText() http.HandlerFunc {
 // @Router /api/text [delete]
 func (h *Handler) DeleteText() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-
 		textID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
@@ -551,7 +540,6 @@ func (h *Handler) DeleteText() http.HandlerFunc {
 // @Router /api/text/{id} [get]
 func (h *Handler) Binary() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-
 		binID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
@@ -638,7 +626,6 @@ func (h *Handler) AddBinary() http.HandlerFunc {
 // @Router /api/text [delete]
 func (h *Handler) DeleteBinary() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-
 		binID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 

@@ -214,7 +214,6 @@ func completer(d prompt.Document) []prompt.Suggest {
 
 		words := strings.Split(d.Text, " ")
 		if len(words) == 1 {
-
 			s = []prompt.Suggest{
 				{Text: "register", Description: "Create new user"},
 				{Text: "signin", Description: "SignIn user"},
