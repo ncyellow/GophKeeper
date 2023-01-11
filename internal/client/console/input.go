@@ -8,8 +8,9 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/ncyellow/GophKeeper/internal/models"
 	"golang.org/x/term"
+
+	"github.com/ncyellow/GophKeeper/internal/models"
 )
 
 // credentials - читает с консоли логин пароль. Если все ок, то error будет nil

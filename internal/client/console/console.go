@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/c-bata/go-prompt"
+
 	"github.com/ncyellow/GophKeeper/internal/client/api"
 	"github.com/ncyellow/GophKeeper/internal/client/config"
 )

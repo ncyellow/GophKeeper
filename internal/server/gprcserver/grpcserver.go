@@ -7,12 +7,13 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/rs/zerolog/log"
+	"google.golang.org/grpc"
+
 	"github.com/ncyellow/GophKeeper/internal/proto"
 	"github.com/ncyellow/GophKeeper/internal/server/config"
 	"github.com/ncyellow/GophKeeper/internal/server/gprcserver/api"
 	"github.com/ncyellow/GophKeeper/internal/server/storage"
-	"github.com/rs/zerolog/log"
-	"google.golang.org/grpc"
 )
 
 // GRPCServer структура сервера. Реализует интерфейс Server

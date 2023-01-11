@@ -7,9 +7,10 @@ import (
 
 	"github.com/driftprogramming/pgxpoolmock"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/rs/zerolog/log"
+
 	"github.com/ncyellow/GophKeeper/internal/models"
 	"github.com/ncyellow/GophKeeper/internal/server/config"
-	"github.com/rs/zerolog/log"
 )
 
 var ErrPgConnect = errors.New("cant connect to pgsql")

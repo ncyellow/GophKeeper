@@ -4,13 +4,14 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/ncyellow/GophKeeper/internal/client/config"
-	"github.com/ncyellow/GophKeeper/internal/models"
-	proto2 "github.com/ncyellow/GophKeeper/internal/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
+
+	"github.com/ncyellow/GophKeeper/internal/client/config"
+	"github.com/ncyellow/GophKeeper/internal/models"
+	proto2 "github.com/ncyellow/GophKeeper/internal/proto"
 )
 
 // GRPCSender структура grpc клиента. Реализует интерфейс Sender. Все комментарий по соотв. методам см там.

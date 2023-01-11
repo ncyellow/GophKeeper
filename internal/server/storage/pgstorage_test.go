@@ -8,9 +8,10 @@ import (
 	"github.com/driftprogramming/pgxpoolmock"
 	"github.com/golang/mock/gomock"
 	"github.com/jackc/pgx/v4"
-	"github.com/ncyellow/GophKeeper/internal/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/ncyellow/GophKeeper/internal/models"
 )
 
 // PgStorageSuite - тесты работы с базой

@@ -4,10 +4,11 @@ package main
 import (
 	"fmt"
 
+	"github.com/rs/zerolog/log"
+
 	"github.com/ncyellow/GophKeeper/internal/client/api"
 	"github.com/ncyellow/GophKeeper/internal/client/config"
 	"github.com/ncyellow/GophKeeper/internal/client/console"
-	"github.com/rs/zerolog/log"
 )
 
 func main() {

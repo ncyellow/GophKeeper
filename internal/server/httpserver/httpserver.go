@@ -8,10 +8,11 @@ import (
 	"os/signal"
 	"syscall"
 
+	"github.com/rs/zerolog/log"
+
 	"github.com/ncyellow/GophKeeper/internal/server/auth/jwt"
 	"github.com/ncyellow/GophKeeper/internal/server/config"
 	"github.com/ncyellow/GophKeeper/internal/server/storage"
-	"github.com/rs/zerolog/log"
 )
 
 // HTTPServer структура нашего https сервера. Реализует интерфейс Server

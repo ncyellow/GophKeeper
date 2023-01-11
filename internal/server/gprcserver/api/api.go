@@ -7,12 +7,13 @@ import (
 	"fmt"
 
 	"github.com/jackc/pgx/v4"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+
 	"github.com/ncyellow/GophKeeper/internal/models"
 	proto2 "github.com/ncyellow/GophKeeper/internal/proto"
 	"github.com/ncyellow/GophKeeper/internal/server/config"
 	"github.com/ncyellow/GophKeeper/internal/server/storage"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 )
 
 // GRPCServer структура для реализации grpc сервера. Для https сервера я делал полное тестирование.

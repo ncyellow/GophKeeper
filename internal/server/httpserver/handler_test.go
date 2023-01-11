@@ -12,13 +12,14 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/jackc/pgx/v4"
-	"github.com/ncyellow/GophKeeper/internal/models"
-	"github.com/ncyellow/GophKeeper/internal/server/config"
-	mock_jwt "github.com/ncyellow/GophKeeper/internal/server/mocks/auth/jwt"
-	mock_storage "github.com/ncyellow/GophKeeper/internal/server/mocks/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/suite"
+
+	"github.com/ncyellow/GophKeeper/internal/models"
+	"github.com/ncyellow/GophKeeper/internal/server/config"
+	mockjwt "github.com/ncyellow/GophKeeper/internal/server/mocks/auth/jwt"
+	mockstorage "github.com/ncyellow/GophKeeper/internal/server/mocks/storage"
 )
 
 type want struct {
@@ -37,8 +38,8 @@ type tests struct {
 
 type HandlersSuite struct {
 	suite.Suite
-	store  *mock_storage.MockStorage
-	parser *mock_jwt.MockParser
+	store  *mockstorage.MockStorage
+	parser *mockjwt.MockParser
 	ts     *httptest.Server
 }
 
@@ -49,10 +50,10 @@ func (suite *HandlersSuite) SetupTest() {
 	defer ctrl.Finish()
 
 	conf := config.Config{}
-	store := mock_storage.NewMockStorage(ctrl)
+	store := mockstorage.NewMockStorage(ctrl)
 	suite.store = store
 
-	parser := mock_jwt.NewMockParser(ctrl)
+	parser := mockjwt.NewMockParser(ctrl)
 	suite.parser = parser
 
 	r := NewRouter(&conf, store, parser)
