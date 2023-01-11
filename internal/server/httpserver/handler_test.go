@@ -257,7 +257,7 @@ func (suite *HandlersSuite) TestCard() {
 			body:        nil,
 			mockExpected: func() {
 				user := &models.User{
-					UserID: int64(userID),
+					UserID: userID,
 					Login:  "login",
 				}
 				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
@@ -278,7 +278,7 @@ func (suite *HandlersSuite) TestCard() {
 			body:        nil,
 			mockExpected: func() {
 				user := &models.User{
-					UserID: int64(userID),
+					UserID: userID,
 					Login:  "login",
 				}
 				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)
@@ -299,7 +299,7 @@ func (suite *HandlersSuite) TestCard() {
 			body:        nil,
 			mockExpected: func() {
 				user := &models.User{
-					UserID: int64(userID),
+					UserID: userID,
 					Login:  "login",
 				}
 				suite.parser.EXPECT().ParseToken(gomock.Any(), gomock.Any()).Return(user.Login, nil)

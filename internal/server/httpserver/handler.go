@@ -4,6 +4,7 @@ package httpserver
 import (
 	"crypto/sha1"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -205,7 +206,7 @@ func (h *Handler) Card() http.HandlerFunc {
 		// Запрашиваем инфу по карте
 		targetCard, err := h.store.Card(r.Context(), user.UserID, cardID)
 		if err != nil {
-			if err == pgx.ErrNoRows {
+			if errors.Is(err, pgx.ErrNoRows) {
 				rw.WriteHeader(http.StatusNotFound)
 				return
 			}
@@ -319,7 +320,7 @@ func (h *Handler) Login() http.HandlerFunc {
 		// Запрашиваем инфу по логину
 		targetLogin, err := h.store.Login(r.Context(), user.UserID, loginID)
 		if err != nil {
-			if err == pgx.ErrNoRows {
+			if errors.Is(err, pgx.ErrNoRows) {
 				rw.WriteHeader(http.StatusNotFound)
 				return
 			}
@@ -433,7 +434,7 @@ func (h *Handler) Text() http.HandlerFunc {
 		// Запрашиваем инфу по текстовым данным
 		targetText, err := h.store.Text(r.Context(), user.UserID, textID)
 		if err != nil {
-			if err == pgx.ErrNoRows {
+			if errors.Is(err, pgx.ErrNoRows) {
 				rw.WriteHeader(http.StatusNotFound)
 				return
 			}
@@ -547,7 +548,7 @@ func (h *Handler) Binary() http.HandlerFunc {
 		// Запрашиваем инфу по бинарным
 		targetBin, err := h.store.Binary(r.Context(), user.UserID, binID)
 		if err != nil {
-			if err == pgx.ErrNoRows {
+			if errors.Is(err, pgx.ErrNoRows) {
 				rw.WriteHeader(http.StatusNotFound)
 				return
 			}

@@ -95,7 +95,6 @@ func CreateExecutor(sender api.Sender) func(string) {
 			if len(commands) != 2 {
 				fmt.Println("Введите идентификатор карты!")
 			} else {
-
 				err := sender.DelCard(commands[1])
 				if err != nil {
 					fmt.Println(err.Error())
@@ -211,7 +210,6 @@ func CreateExecutor(sender api.Sender) func(string) {
 func completer(d prompt.Document) []prompt.Suggest {
 	var s []prompt.Suggest
 	if d.Text != "" {
-
 		words := strings.Split(d.Text, " ")
 		if len(words) == 1 {
 			s = []prompt.Suggest{

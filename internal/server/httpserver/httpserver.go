@@ -3,6 +3,7 @@ package httpserver
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"os"
 	"os/signal"
@@ -52,7 +53,7 @@ func (s *HTTPServer) Run() error {
 	}()
 
 	go func() {
-		if err := srv.ListenAndServeTLS(s.Conf.CryptoCrt, s.Conf.CryptoKey); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServeTLS(s.Conf.CryptoCrt, s.Conf.CryptoKey); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Error().Msgf("listen: %s", err)
 		}
 	}()

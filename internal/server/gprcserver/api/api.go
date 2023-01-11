@@ -4,6 +4,7 @@ package api
 import (
 	"context"
 	"crypto/sha1"
+	"errors"
 	"fmt"
 
 	"github.com/jackc/pgx/v4"
@@ -160,11 +161,10 @@ func (s *GRPCServer) Card(ctx context.Context, req *proto2.CardRequest) (*proto2
 	userID := req.GetUser()
 	card, err := s.repo.Card(ctx, userID, cardID)
 	if err != nil {
-		if err == pgx.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "")
 		}
 		return nil, status.Error(codes.Internal, "")
-
 	}
 	return &proto2.CardResponse{
 		Card: &proto2.Card{
@@ -184,11 +184,10 @@ func (s *GRPCServer) Login(ctx context.Context, req *proto2.LoginRequest) (*prot
 	userID := req.GetUser()
 	login, err := s.repo.Login(ctx, userID, loginID)
 	if err != nil {
-		if err == pgx.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "")
 		}
 		return nil, status.Error(codes.Internal, "")
-
 	}
 	return &proto2.LoginResponse{
 		Login: &proto2.Login{
@@ -206,11 +205,10 @@ func (s *GRPCServer) Text(ctx context.Context, req *proto2.TextRequest) (*proto2
 	userID := req.GetUser()
 	text, err := s.repo.Text(ctx, userID, textID)
 	if err != nil {
-		if err == pgx.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "")
 		}
 		return nil, status.Error(codes.Internal, "")
-
 	}
 	return &proto2.TextResponse{
 		Text: &proto2.Text{
@@ -227,11 +225,10 @@ func (s *GRPCServer) Binary(ctx context.Context, req *proto2.BinRequest) (*proto
 	userID := req.GetUser()
 	bin, err := s.repo.Binary(ctx, userID, binID)
 	if err != nil {
-		if err == pgx.ErrNoRows {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return nil, status.Error(codes.NotFound, "")
 		}
 		return nil, status.Error(codes.Internal, "")
-
 	}
 	return &proto2.BinResponse{
 		Binary: &proto2.Binary{

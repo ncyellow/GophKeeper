@@ -39,7 +39,7 @@ func (p *PgStorage) Close() {
 }
 
 func (p *PgStorage) Register(ctx context.Context, user models.User) (int64, error) {
-	var lastInsertID int64 = 0
+	var lastInsertID int64
 	err := p.pool.QueryRow(ctx, `
 	INSERT INTO "users"("login", "password")
 	VALUES ($1, $2)
@@ -80,7 +80,7 @@ func (p *PgStorage) User(ctx context.Context, login string, password string) (*m
 }
 
 func (p *PgStorage) AddCard(ctx context.Context, userID int64, card models.Card) error {
-	var lastInsertID int64 = 0
+	var lastInsertID int64
 	err := p.pool.QueryRow(ctx, `
 	INSERT INTO "cards"("id", "user", "fio", "number", "date", "cvv", "metainfo")
 	VALUES ($1, $2, $3, $4, $5, $6, $7)
@@ -119,7 +119,7 @@ func (p *PgStorage) DeleteCard(ctx context.Context, userID int64, cardID string)
 }
 
 func (p *PgStorage) AddLogin(ctx context.Context, userID int64, login models.Login) error {
-	var lastInsertID int64 = 0
+	var lastInsertID int64
 	err := p.pool.QueryRow(ctx, `
 	INSERT INTO "logins"("id", "user", "login", "password", "metainfo")
 	VALUES ($1, $2, $3, $4, $5)
@@ -157,7 +157,7 @@ func (p *PgStorage) DeleteLogin(ctx context.Context, userID int64, loginID strin
 }
 
 func (p *PgStorage) AddText(ctx context.Context, userID int64, text models.Text) error {
-	var lastInsertID int64 = 0
+	var lastInsertID int64
 	err := p.pool.QueryRow(ctx, `
 	INSERT INTO "text_data"("id", "user", "content", "metainfo")
 	VALUES ($1, $2, $3, $4)
@@ -195,7 +195,7 @@ func (p *PgStorage) DeleteText(ctx context.Context, userID int64, textID string)
 }
 
 func (p *PgStorage) AddBinary(ctx context.Context, userID int64, binData models.Binary) error {
-	var lastInsertID int64 = 0
+	var lastInsertID int64
 	err := p.pool.QueryRow(ctx, `
 	INSERT INTO "bin_data"("id", "user", "content", "metainfo")
 	VALUES ($1, $2, $3, $4)
