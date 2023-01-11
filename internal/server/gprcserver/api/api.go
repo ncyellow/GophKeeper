@@ -8,8 +8,8 @@ import (
 
 	"github.com/jackc/pgx/v4"
 	"github.com/ncyellow/GophKeeper/internal/models"
+	proto2 "github.com/ncyellow/GophKeeper/internal/proto"
 	"github.com/ncyellow/GophKeeper/internal/server/config"
-	"github.com/ncyellow/GophKeeper/internal/server/gprcserver/proto"
 	"github.com/ncyellow/GophKeeper/internal/server/storage"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -18,7 +18,7 @@ import (
 // GRPCServer структура для реализации grpc сервера. Для https сервера я делал полное тестирование.
 // Потому тут я повторяться не буду и второй раз тестировать тоже самое не буду
 type GRPCServer struct {
-	proto.UnimplementedGophKeeperServerServer
+	proto2.UnimplementedGophKeeperServerServer
 	conf *config.Config
 	repo storage.Storage
 }
@@ -32,7 +32,7 @@ func NewServer(repo storage.Storage, conf *config.Config) *GRPCServer {
 }
 
 // Register регистрация пользователя
-func (s *GRPCServer) Register(ctx context.Context, req *proto.RegisterRequest) (*proto.RegisterResponse, error) {
+func (s *GRPCServer) Register(ctx context.Context, req *proto2.RegisterRequest) (*proto2.RegisterResponse, error) {
 	login := req.GetLogin()
 	originalPassword := req.GetPassword()
 
@@ -56,13 +56,13 @@ func (s *GRPCServer) Register(ctx context.Context, req *proto.RegisterRequest) (
 		return nil, status.Error(codes.Internal, "")
 	}
 
-	return &proto.RegisterResponse{
+	return &proto2.RegisterResponse{
 		User: repoUser.UserID,
 	}, nil
 }
 
 // SignIn аутентификация
-func (s *GRPCServer) SignIn(ctx context.Context, req *proto.RegisterRequest) (*proto.RegisterResponse, error) {
+func (s *GRPCServer) SignIn(ctx context.Context, req *proto2.RegisterRequest) (*proto2.RegisterResponse, error) {
 	login := req.GetLogin()
 	originalPassword := req.GetPassword()
 
@@ -80,14 +80,14 @@ func (s *GRPCServer) SignIn(ctx context.Context, req *proto.RegisterRequest) (*p
 		return nil, status.Error(codes.Internal, "")
 	}
 
-	return &proto.RegisterResponse{
+	return &proto2.RegisterResponse{
 		User: repoUser.UserID,
 	}, nil
 }
 
 // AddCard зарегистрировать новую карту
-func (s *GRPCServer) AddCard(ctx context.Context, req *proto.AddCardRequest) (*proto.AddCardResponse, error) {
-	var response proto.AddCardResponse
+func (s *GRPCServer) AddCard(ctx context.Context, req *proto2.AddCardRequest) (*proto2.AddCardResponse, error) {
+	var response proto2.AddCardResponse
 	card := *req.GetCard()
 	userID := req.GetUser()
 	err := s.repo.AddCard(ctx, userID, models.Card{
@@ -105,8 +105,8 @@ func (s *GRPCServer) AddCard(ctx context.Context, req *proto.AddCardRequest) (*p
 }
 
 // AddLogin зарегистрировать новый логин
-func (s *GRPCServer) AddLogin(ctx context.Context, req *proto.AddLoginRequest) (*proto.AddLoginResponse, error) {
-	var response proto.AddLoginResponse
+func (s *GRPCServer) AddLogin(ctx context.Context, req *proto2.AddLoginRequest) (*proto2.AddLoginResponse, error) {
+	var response proto2.AddLoginResponse
 	login := *req.GetLogin()
 	userID := req.GetUser()
 	err := s.repo.AddLogin(ctx, userID, models.Login{
@@ -122,8 +122,8 @@ func (s *GRPCServer) AddLogin(ctx context.Context, req *proto.AddLoginRequest) (
 }
 
 // AddText зарегистрировать новый текст по пользователю и идентификатору
-func (s *GRPCServer) AddText(ctx context.Context, req *proto.AddTextRequest) (*proto.AddTextResponse, error) {
-	var response proto.AddTextResponse
+func (s *GRPCServer) AddText(ctx context.Context, req *proto2.AddTextRequest) (*proto2.AddTextResponse, error) {
+	var response proto2.AddTextResponse
 	text := *req.GetText()
 	userID := req.GetUser()
 	err := s.repo.AddText(ctx, userID, models.Text{
@@ -138,8 +138,8 @@ func (s *GRPCServer) AddText(ctx context.Context, req *proto.AddTextRequest) (*p
 }
 
 // AddBinary зарегистрировать бинарные данные по пользователю и идентификатору
-func (s *GRPCServer) AddBinary(ctx context.Context, req *proto.AddBinRequest) (*proto.AddBinResponse, error) {
-	var response proto.AddBinResponse
+func (s *GRPCServer) AddBinary(ctx context.Context, req *proto2.AddBinRequest) (*proto2.AddBinResponse, error) {
+	var response proto2.AddBinResponse
 	text := *req.GetBinary()
 	userID := req.GetUser()
 	err := s.repo.AddBinary(ctx, userID, models.Binary{
@@ -154,7 +154,7 @@ func (s *GRPCServer) AddBinary(ctx context.Context, req *proto.AddBinRequest) (*
 }
 
 // Card вернуть данные конкретной карты
-func (s *GRPCServer) Card(ctx context.Context, req *proto.CardRequest) (*proto.CardResponse, error) {
+func (s *GRPCServer) Card(ctx context.Context, req *proto2.CardRequest) (*proto2.CardResponse, error) {
 	cardID := req.GetId()
 	userID := req.GetUser()
 	card, err := s.repo.Card(ctx, userID, cardID)
@@ -165,8 +165,8 @@ func (s *GRPCServer) Card(ctx context.Context, req *proto.CardRequest) (*proto.C
 		return nil, status.Error(codes.Internal, "")
 
 	}
-	return &proto.CardResponse{
-		Card: &proto.Card{
+	return &proto2.CardResponse{
+		Card: &proto2.Card{
 			Id:       card.ID,
 			Fio:      card.FIO,
 			Number:   card.Number,
@@ -178,7 +178,7 @@ func (s *GRPCServer) Card(ctx context.Context, req *proto.CardRequest) (*proto.C
 }
 
 // Login вернуть данные по конкретному логину
-func (s *GRPCServer) Login(ctx context.Context, req *proto.LoginRequest) (*proto.LoginResponse, error) {
+func (s *GRPCServer) Login(ctx context.Context, req *proto2.LoginRequest) (*proto2.LoginResponse, error) {
 	loginID := req.GetId()
 	userID := req.GetUser()
 	login, err := s.repo.Login(ctx, userID, loginID)
@@ -189,8 +189,8 @@ func (s *GRPCServer) Login(ctx context.Context, req *proto.LoginRequest) (*proto
 		return nil, status.Error(codes.Internal, "")
 
 	}
-	return &proto.LoginResponse{
-		Login: &proto.Login{
+	return &proto2.LoginResponse{
+		Login: &proto2.Login{
 			Id:       login.ID,
 			Login:    login.Login,
 			Password: login.Password,
@@ -200,7 +200,7 @@ func (s *GRPCServer) Login(ctx context.Context, req *proto.LoginRequest) (*proto
 }
 
 // Text вернуть данные по конкретному тексту
-func (s *GRPCServer) Text(ctx context.Context, req *proto.TextRequest) (*proto.TextResponse, error) {
+func (s *GRPCServer) Text(ctx context.Context, req *proto2.TextRequest) (*proto2.TextResponse, error) {
 	textID := req.GetId()
 	userID := req.GetUser()
 	text, err := s.repo.Text(ctx, userID, textID)
@@ -211,8 +211,8 @@ func (s *GRPCServer) Text(ctx context.Context, req *proto.TextRequest) (*proto.T
 		return nil, status.Error(codes.Internal, "")
 
 	}
-	return &proto.TextResponse{
-		Text: &proto.Text{
+	return &proto2.TextResponse{
+		Text: &proto2.Text{
 			Id:       text.ID,
 			Content:  text.Content,
 			Metainfo: text.MetaInfo,
@@ -221,7 +221,7 @@ func (s *GRPCServer) Text(ctx context.Context, req *proto.TextRequest) (*proto.T
 }
 
 // Binary вернуть данные конкретных бинарных данных
-func (s *GRPCServer) Binary(ctx context.Context, req *proto.BinRequest) (*proto.BinResponse, error) {
+func (s *GRPCServer) Binary(ctx context.Context, req *proto2.BinRequest) (*proto2.BinResponse, error) {
 	binID := req.GetId()
 	userID := req.GetUser()
 	bin, err := s.repo.Binary(ctx, userID, binID)
@@ -232,8 +232,8 @@ func (s *GRPCServer) Binary(ctx context.Context, req *proto.BinRequest) (*proto.
 		return nil, status.Error(codes.Internal, "")
 
 	}
-	return &proto.BinResponse{
-		Binary: &proto.Binary{
+	return &proto2.BinResponse{
+		Binary: &proto2.Binary{
 			Id:       bin.ID,
 			Data:     bin.Data,
 			Metainfo: bin.MetaInfo,
@@ -242,8 +242,8 @@ func (s *GRPCServer) Binary(ctx context.Context, req *proto.BinRequest) (*proto.
 }
 
 // DeleteCard удалить карту по пользователю и идентификатору
-func (s *GRPCServer) DeleteCard(ctx context.Context, req *proto.DeleteCardRequest) (*proto.DeleteCardResponse, error) {
-	var response proto.DeleteCardResponse
+func (s *GRPCServer) DeleteCard(ctx context.Context, req *proto2.DeleteCardRequest) (*proto2.DeleteCardResponse, error) {
+	var response proto2.DeleteCardResponse
 	dataID := req.GetId()
 	userID := req.GetUser()
 	err := s.repo.DeleteCard(ctx, userID, dataID)
@@ -254,8 +254,8 @@ func (s *GRPCServer) DeleteCard(ctx context.Context, req *proto.DeleteCardReques
 }
 
 // DeleteLogin удалить логин по пользователю и идентификатору
-func (s *GRPCServer) DeleteLogin(ctx context.Context, req *proto.DeleteLoginRequest) (*proto.DeleteLoginResponse, error) {
-	var response proto.DeleteLoginResponse
+func (s *GRPCServer) DeleteLogin(ctx context.Context, req *proto2.DeleteLoginRequest) (*proto2.DeleteLoginResponse, error) {
+	var response proto2.DeleteLoginResponse
 	dataID := req.GetId()
 	userID := req.GetUser()
 	err := s.repo.DeleteLogin(ctx, userID, dataID)
@@ -266,8 +266,8 @@ func (s *GRPCServer) DeleteLogin(ctx context.Context, req *proto.DeleteLoginRequ
 }
 
 // DeleteText текст по пользователю и идентификатору
-func (s *GRPCServer) DeleteText(ctx context.Context, req *proto.DeleteTextRequest) (*proto.DeleteTextResponse, error) {
-	var response proto.DeleteTextResponse
+func (s *GRPCServer) DeleteText(ctx context.Context, req *proto2.DeleteTextRequest) (*proto2.DeleteTextResponse, error) {
+	var response proto2.DeleteTextResponse
 	dataID := req.GetId()
 	userID := req.GetUser()
 	err := s.repo.DeleteText(ctx, userID, dataID)
@@ -278,8 +278,8 @@ func (s *GRPCServer) DeleteText(ctx context.Context, req *proto.DeleteTextReques
 }
 
 // DeleteBinary удалить бинарные данные по пользователю и идентификатору
-func (s *GRPCServer) DeleteBinary(ctx context.Context, req *proto.DeleteBinRequest) (*proto.DeleteBinResponse, error) {
-	var response proto.DeleteBinResponse
+func (s *GRPCServer) DeleteBinary(ctx context.Context, req *proto2.DeleteBinRequest) (*proto2.DeleteBinResponse, error) {
+	var response proto2.DeleteBinResponse
 	dataID := req.GetId()
 	userID := req.GetUser()
 	err := s.repo.DeleteBinary(ctx, userID, dataID)

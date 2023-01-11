@@ -6,7 +6,7 @@ import (
 
 	"github.com/ncyellow/GophKeeper/internal/client/config"
 	"github.com/ncyellow/GophKeeper/internal/models"
-	"github.com/ncyellow/GophKeeper/internal/server/gprcserver/proto"
+	proto2 "github.com/ncyellow/GophKeeper/internal/proto"
 	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -17,7 +17,7 @@ import (
 // GRPCSender структура grpc клиента. Реализует интерфейс Sender. Все комментарий по соотв. методам см там.
 type GRPCSender struct {
 	conn   *grpc.ClientConn
-	client proto.GophKeeperServerClient
+	client proto2.GophKeeperServerClient
 	conf   *config.Config
 	userID *int64
 }
@@ -29,7 +29,7 @@ func NewGRPCSender(conf *config.Config) *GRPCSender {
 	if err != nil {
 		log.Fatal().Err(err)
 	}
-	client := proto.NewGophKeeperServerClient(conn)
+	client := proto2.NewGophKeeperServerClient(conn)
 	return &GRPCSender{
 		conf:   conf,
 		conn:   conn,
@@ -38,7 +38,7 @@ func NewGRPCSender(conf *config.Config) *GRPCSender {
 }
 
 func (g *GRPCSender) Register(login string, pwd string) error {
-	response, err := g.client.Register(context.Background(), &proto.RegisterRequest{
+	response, err := g.client.Register(context.Background(), &proto2.RegisterRequest{
 		Login:    login,
 		Password: pwd,
 	})
@@ -60,7 +60,7 @@ func (g *GRPCSender) Register(login string, pwd string) error {
 }
 
 func (g *GRPCSender) SignIn(login string, pwd string) error {
-	response, err := g.client.SignIn(context.Background(), &proto.RegisterRequest{
+	response, err := g.client.SignIn(context.Background(), &proto2.RegisterRequest{
 		Login:    login,
 		Password: pwd,
 	})
@@ -85,8 +85,8 @@ func (g *GRPCSender) AddCard(card *models.Card) error {
 		return ErrAuthRequire
 	}
 
-	_, err := g.client.AddCard(context.Background(), &proto.AddCardRequest{
-		Card: &proto.Card{
+	_, err := g.client.AddCard(context.Background(), &proto2.AddCardRequest{
+		Card: &proto2.Card{
 			Id:       card.ID,
 			Fio:      card.FIO,
 			Number:   card.Number,
@@ -112,7 +112,7 @@ func (g *GRPCSender) Card(cardID string) (*models.Card, error) {
 		return nil, ErrAuthRequire
 	}
 
-	response, err := g.client.Card(context.Background(), &proto.CardRequest{
+	response, err := g.client.Card(context.Background(), &proto2.CardRequest{
 		Id:   cardID,
 		User: *g.userID,
 	})
@@ -140,7 +140,7 @@ func (g *GRPCSender) DelCard(cardID string) error {
 	if g.userID == nil {
 		return ErrAuthRequire
 	}
-	_, err := g.client.DeleteCard(context.Background(), &proto.DeleteCardRequest{
+	_, err := g.client.DeleteCard(context.Background(), &proto2.DeleteCardRequest{
 		Id:   cardID,
 		User: *g.userID,
 	})
@@ -155,8 +155,8 @@ func (g *GRPCSender) AddLogin(login *models.Login) error {
 		return ErrAuthRequire
 	}
 
-	_, err := g.client.AddLogin(context.Background(), &proto.AddLoginRequest{
-		Login: &proto.Login{
+	_, err := g.client.AddLogin(context.Background(), &proto2.AddLoginRequest{
+		Login: &proto2.Login{
 			Id:       login.ID,
 			Login:    login.Login,
 			Password: login.Password,
@@ -180,7 +180,7 @@ func (g *GRPCSender) Login(loginID string) (*models.Login, error) {
 		return nil, ErrAuthRequire
 	}
 
-	response, err := g.client.Login(context.Background(), &proto.LoginRequest{
+	response, err := g.client.Login(context.Background(), &proto2.LoginRequest{
 		Id:   loginID,
 		User: *g.userID,
 	})
@@ -206,7 +206,7 @@ func (g *GRPCSender) DelLogin(loginID string) error {
 	if g.userID == nil {
 		return ErrAuthRequire
 	}
-	_, err := g.client.DeleteLogin(context.Background(), &proto.DeleteLoginRequest{
+	_, err := g.client.DeleteLogin(context.Background(), &proto2.DeleteLoginRequest{
 		Id:   loginID,
 		User: *g.userID,
 	})
@@ -221,8 +221,8 @@ func (g *GRPCSender) AddText(text *models.Text) error {
 		return ErrAuthRequire
 	}
 
-	_, err := g.client.AddText(context.Background(), &proto.AddTextRequest{
-		Text: &proto.Text{
+	_, err := g.client.AddText(context.Background(), &proto2.AddTextRequest{
+		Text: &proto2.Text{
 			Id:       text.ID,
 			Content:  text.Content,
 			Metainfo: text.MetaInfo,
@@ -245,7 +245,7 @@ func (g *GRPCSender) Text(textID string) (*models.Text, error) {
 		return nil, ErrAuthRequire
 	}
 
-	response, err := g.client.Text(context.Background(), &proto.TextRequest{
+	response, err := g.client.Text(context.Background(), &proto2.TextRequest{
 		Id:   textID,
 		User: *g.userID,
 	})
@@ -270,7 +270,7 @@ func (g *GRPCSender) DelText(textID string) error {
 	if g.userID == nil {
 		return ErrAuthRequire
 	}
-	_, err := g.client.DeleteText(context.Background(), &proto.DeleteTextRequest{
+	_, err := g.client.DeleteText(context.Background(), &proto2.DeleteTextRequest{
 		Id:   textID,
 		User: *g.userID,
 	})
@@ -285,8 +285,8 @@ func (g *GRPCSender) AddBin(binary *models.Binary) error {
 		return ErrAuthRequire
 	}
 
-	_, err := g.client.AddBinary(context.Background(), &proto.AddBinRequest{
-		Binary: &proto.Binary{
+	_, err := g.client.AddBinary(context.Background(), &proto2.AddBinRequest{
+		Binary: &proto2.Binary{
 			Id:       binary.ID,
 			Data:     binary.Data,
 			Metainfo: binary.MetaInfo,
@@ -309,7 +309,7 @@ func (g *GRPCSender) Bin(binID string) (*models.Binary, error) {
 		return nil, ErrAuthRequire
 	}
 
-	response, err := g.client.Binary(context.Background(), &proto.BinRequest{
+	response, err := g.client.Binary(context.Background(), &proto2.BinRequest{
 		Id:   binID,
 		User: *g.userID,
 	})
@@ -334,7 +334,7 @@ func (g *GRPCSender) DelBin(binID string) error {
 	if g.userID == nil {
 		return ErrAuthRequire
 	}
-	_, err := g.client.DeleteBinary(context.Background(), &proto.DeleteBinRequest{
+	_, err := g.client.DeleteBinary(context.Background(), &proto2.DeleteBinRequest{
 		Id:   binID,
 		User: *g.userID,
 	})

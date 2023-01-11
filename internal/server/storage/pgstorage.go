@@ -12,9 +12,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-var (
-	ErrPgConnect = errors.New("cant connect to pgsql")
-)
+var ErrPgConnect = errors.New("cant connect to pgsql")
 
 type PgStorage struct {
 	conf *config.Config
