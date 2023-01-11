@@ -9,7 +9,7 @@ import (
 
 // Server интерфейс который должен реализовать сервер
 type Server interface {
-	Run()
+	Run() error
 }
 
 // CreateServer - factory function которая выбирает имплементацию сервера по параметрам
@@ -18,10 +18,10 @@ func CreateServer(conf *config.Config) Server {
 	if conf.GRPCAddress != "" {
 		// устанавливаем соединение с сервером
 		return &gprcserver.GRPCServer{
-			Conf: config.ParseConfig(),
+			Conf: conf,
 		}
 	}
 	return &httpserver.HTTPServer{
-		Conf: config.ParseConfig(),
+		Conf: conf,
 	}
 }

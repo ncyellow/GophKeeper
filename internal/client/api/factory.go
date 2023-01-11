@@ -5,7 +5,7 @@ import (
 )
 
 // CreateSender функция создает либо клиент https либо grpc по настройкам
-func CreateSender(conf *config.Config) Sender {
+func CreateSender(conf *config.Config) (Sender, error) {
 	// По дефолту у нас https, только если задан GRPCAddress entrypoint, мы переходим на grpc
 	if conf.GRPCAddress != "" {
 		// устанавливаем соединение с сервером

@@ -5,7 +5,6 @@ import (
 	"flag"
 
 	"github.com/caarlos0/env/v6"
-	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -23,7 +22,7 @@ type Config struct {
 }
 
 // ParseConfig парсинг ENV и командной строки для получения конфигурации
-func ParseConfig() *Config {
+func ParseConfig() (*Config, error) {
 	var cfg Config
 
 	// Тестовый код удалю в конце
@@ -44,9 +43,8 @@ func ParseConfig() *Config {
 	// Далее приоритетно аргументы из ENV
 	err := env.Parse(&cfg)
 	if err != nil {
-		log.Fatal().Err(err)
+		return nil, err
 	}
 
-	log.Fatal().Msgf("conf = %#v\n", cfg)
-	return &cfg
+	return &cfg, nil
 }

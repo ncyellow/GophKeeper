@@ -20,10 +20,10 @@ type HTTPServer struct {
 }
 
 // Run блокирующая функция по запуску сервера
-func (s *HTTPServer) Run() {
+func (s *HTTPServer) Run() error {
 	store, err := storage.NewPgStorage(s.Conf)
 	if err != nil {
-		log.Fatal().Err(err)
+		return err
 	}
 
 	router := NewRouter(s.Conf, store, &jwt.DefaultParser{})
@@ -57,4 +57,5 @@ func (s *HTTPServer) Run() {
 	}()
 	<-idleConnsClosed
 	log.Info().Msg("Server Shutdown gracefully")
+	return nil
 }

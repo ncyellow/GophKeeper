@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"os"
 
@@ -23,20 +22,19 @@ type HTTPSender struct {
 }
 
 // NewHTTPSender конструктор http клиента
-func NewHTTPSender(conf *config.Config) *HTTPSender {
-	// так как нам важна работа через tls, то все проблемы с tls вызывают фаталити
+func NewHTTPSender(conf *config.Config) (*HTTPSender, error) {
 	clientCertFile := conf.CryptoCrt
 	clientKeyFile := conf.CryptoKey
 	caCertFile := conf.CACertFile
 
 	cert, err := tls.LoadX509KeyPair(clientCertFile, clientKeyFile)
 	if err != nil {
-		log.Fatalf("Error creating x509 keypair from client cert file %s and client key file %s", clientCertFile, clientKeyFile)
+		return nil, err
 	}
 
 	caCert, err := os.ReadFile(caCertFile)
 	if err != nil {
-		log.Fatalf("Error opening cert file %s, Error: %s", caCertFile, err)
+		return nil, err
 	}
 
 	caCertPool := x509.NewCertPool()
@@ -55,7 +53,7 @@ func NewHTTPSender(conf *config.Config) *HTTPSender {
 		},
 		Conf:      conf,
 		AuthToken: nil,
-	}
+	}, nil
 }
 
 func (s *HTTPSender) Register(login string, pwd string) error {

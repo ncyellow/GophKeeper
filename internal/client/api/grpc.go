@@ -7,7 +7,6 @@ import (
 	"github.com/ncyellow/GophKeeper/internal/client/config"
 	"github.com/ncyellow/GophKeeper/internal/models"
 	proto2 "github.com/ncyellow/GophKeeper/internal/proto"
-	"github.com/rs/zerolog/log"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials/insecure"
@@ -23,18 +22,18 @@ type GRPCSender struct {
 }
 
 // NewGRPCSender конструктор
-func NewGRPCSender(conf *config.Config) *GRPCSender {
+func NewGRPCSender(conf *config.Config) (*GRPCSender, error) {
 	// устанавливаем соединение с сервером
 	conn, err := grpc.Dial(conf.GRPCAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
-		log.Fatal().Err(err)
+		return nil, err
 	}
 	client := proto2.NewGophKeeperServerClient(conn)
 	return &GRPCSender{
 		conf:   conf,
 		conn:   conn,
 		client: client,
-	}
+	}, nil
 }
 
 func (g *GRPCSender) Register(login string, pwd string) error {
