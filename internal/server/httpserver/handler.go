@@ -4,6 +4,7 @@ package httpserver
 import (
 	"crypto/sha1"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -11,12 +12,28 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/jackc/pgx/v4"
+
 	"github.com/ncyellow/GophKeeper/internal/models"
 	"github.com/ncyellow/GophKeeper/internal/server/auth"
 	"github.com/ncyellow/GophKeeper/internal/server/auth/jwt"
 	"github.com/ncyellow/GophKeeper/internal/server/config"
 	"github.com/ncyellow/GophKeeper/internal/server/storage"
 )
+
+// @Title GophKeeper API
+// @Description Сервис по хранения конфиденциальных данных
+// @Version 1.0
+
+// @Contact.email ncyellow@yandex.ru
+
+// @Tag.name Add
+// @Tag.description "Группа запросов на добавление новых данных"
+
+// @Tag.name Read
+// @Tag.description "Группа запросов на чтение данных"
+
+// @Tag.name Delete
+// @Tag.description "Группа запросов на удаление данных"
 
 // Handler структура реализует chi.Mux для работы роутинга
 type Handler struct {
@@ -27,7 +44,6 @@ type Handler struct {
 
 // NewRouter конструктор нашего объекта роутинга
 func NewRouter(conf *config.Config, store storage.Storage, parser jwt.Parser) chi.Router {
-
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
 	r.Use(middleware.Logger)
@@ -119,7 +135,6 @@ func (h *Handler) Register() http.HandlerFunc {
 		user.Password = originalPassword
 		// Генерация токена если регистрация успешна
 		jwtToken, err := h.authorizer.SignIn(r.Context(), &user)
-
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
 			rw.Write([]byte("invalid login"))
@@ -160,7 +175,6 @@ func (h *Handler) SignIn() http.HandlerFunc {
 
 		// Попытка аутентификации если проходит - генерируем токен
 		jwtToken, err := h.authorizer.SignIn(r.Context(), &user)
-
 		// либо 200, либо 401
 		if err != nil {
 			rw.WriteHeader(http.StatusUnauthorized)
@@ -174,16 +188,25 @@ func (h *Handler) SignIn() http.HandlerFunc {
 }
 
 // Card вернуть данные конкретной карты
+// @Tags Read
+// @Summary Возвращает данные по карте пользователя
+// @Description на вход rest url на выход json значение
+// @ID readCard
+// @Produce json
+// @Param id path string true "Card ID"
+// @Success 200 {object} Card
+// @Failure 404 {string} string ""
+// @Failure 500 {string} string ""
+// @Router /api/card/{id} [get]
 func (h *Handler) Card() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-
 		cardID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
 		// Запрашиваем инфу по карте
 		targetCard, err := h.store.Card(r.Context(), user.UserID, cardID)
 		if err != nil {
-			if err == pgx.ErrNoRows {
+			if errors.Is(err, pgx.ErrNoRows) {
 				rw.WriteHeader(http.StatusNotFound)
 				return
 			}
@@ -205,13 +228,25 @@ func (h *Handler) Card() http.HandlerFunc {
 }
 
 // AddCard зарегистрировать новую карту
+// @Tags Add
+// @Summary Регистрация новой карты
+// @Description Регистрация выполняется по уникальной паре Ид пользователя + Ид карты.
+// @ID addCard
+// @Accept json
+// @Produce plain
+// @Param card_data body Card true "Card object"
+// @Success 200 {string} string "ok"
+// @Failure 400 {string} string "invalid deserialization"
+// @Failure 409 {string} string ""
+// @Failure 500 {string} string "read data problem"
+// @Router /api/card [post]
 func (h *Handler) AddCard() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		reqBody, err := io.ReadAll(r.Body)
 		defer r.Body.Close()
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
-			rw.Write([]byte("Read data problem"))
+			rw.Write([]byte("read data problem"))
 			return
 		}
 
@@ -238,10 +273,18 @@ func (h *Handler) AddCard() http.HandlerFunc {
 	}
 }
 
-// DeleteCard зарегистрировать новую карту
+// DeleteCard удалить карту по пользователю и идентификатору
+// @Tags Delete
+// @Summary Удаление карты
+// @Description Удаление выполняется по уникальной паре Ид пользователя + Ид карты.
+// @ID delCard
+// @Produce plain
+// @Param id path string true "Card ID"
+// @Success 200 {string} string "ok"
+// @Failure 500 {string} string ""
+// @Router /api/card [delete]
 func (h *Handler) DeleteCard() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-
 		cardID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
@@ -255,21 +298,29 @@ func (h *Handler) DeleteCard() http.HandlerFunc {
 		rw.Header().Set("Content-Type", "application/json")
 		rw.WriteHeader(http.StatusOK)
 		rw.Write([]byte("ok"))
-
 	}
 }
 
-// Login вернуть данные конкретной карты
+// Login вернуть данные конкретного логина
+// @Tags Read
+// @Summary Возвращает данные по логину пользователя
+// @Description на вход rest url на выход json значение
+// @ID readLogin
+// @Produce json
+// @Param id path string true "Login ID"
+// @Success 200 {object} Login
+// @Failure 404 {string} string ""
+// @Failure 500 {string} string ""
+// @Router /api/login/{id} [get]
 func (h *Handler) Login() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-
 		loginID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
 		// Запрашиваем инфу по логину
 		targetLogin, err := h.store.Login(r.Context(), user.UserID, loginID)
 		if err != nil {
-			if err == pgx.ErrNoRows {
+			if errors.Is(err, pgx.ErrNoRows) {
 				rw.WriteHeader(http.StatusNotFound)
 				return
 			}
@@ -290,14 +341,26 @@ func (h *Handler) Login() http.HandlerFunc {
 	}
 }
 
-// AddLogin зарегистрировать новую карту
+// AddLogin зарегистрировать новый логин
+// @Tags Add
+// @Summary Регистрация нового логина
+// @Description Регистрация выполняется по уникальной паре Ид пользователя + Ид карты.
+// @ID addLogin
+// @Accept json
+// @Produce plain
+// @Param login_data body Login true "Login object"
+// @Success 200 {string} string "ok"
+// @Failure 400 {string} string "invalid deserialization"
+// @Failure 409 {string} string ""
+// @Failure 500 {string} string "read data problem"
+// @Router /api/login [post]
 func (h *Handler) AddLogin() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		reqBody, err := io.ReadAll(r.Body)
 		defer r.Body.Close()
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
-			rw.Write([]byte("Read data problem"))
+			rw.Write([]byte("read data problem"))
 			return
 		}
 
@@ -324,10 +387,18 @@ func (h *Handler) AddLogin() http.HandlerFunc {
 	}
 }
 
-// DeleteLogin зарегистрировать новую карту
+// DeleteLogin удалить логин по пользователю и идентификатору
+// @Tags Delete
+// @Summary Удаление логина
+// @Description Удаление выполняется по уникальной паре Ид пользователя + Ид карты.
+// @ID delLogin
+// @Produce plain
+// @Param id path string true "Login ID"
+// @Success 200 {string} string "ok"
+// @Failure 500 {string} string ""
+// @Router /api/login [delete]
 func (h *Handler) DeleteLogin() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-
 		loginID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
@@ -344,17 +415,26 @@ func (h *Handler) DeleteLogin() http.HandlerFunc {
 	}
 }
 
-// Text вернуть данные конкретной карты
+// Text вернуть данные по конкретному тексту
+// @Tags Read
+// @Summary Возвращает данные по логину пользователя
+// @Description на вход rest url на выход json значение
+// @ID readText
+// @Produce json
+// @Param id path string true "Text ID"
+// @Success 200 {object} Text
+// @Failure 404 {string} string ""
+// @Failure 500 {string} string ""
+// @Router /api/text/{id} [get]
 func (h *Handler) Text() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-
 		textID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
 		// Запрашиваем инфу по текстовым данным
 		targetText, err := h.store.Text(r.Context(), user.UserID, textID)
 		if err != nil {
-			if err == pgx.ErrNoRows {
+			if errors.Is(err, pgx.ErrNoRows) {
 				rw.WriteHeader(http.StatusNotFound)
 				return
 			}
@@ -375,10 +455,21 @@ func (h *Handler) Text() http.HandlerFunc {
 	}
 }
 
-// AddText зарегистрировать новую карту
+// AddText зарегистрировать новый текст по пользователю и идентификатору
+// @Tags Add
+// @Summary Регистрация нового текста
+// @Description Регистрация выполняется по уникальной паре Ид пользователя + Ид карты.
+// @ID addText
+// @Accept json
+// @Produce plain
+// @Param text_data body Text true "Text object"
+// @Success 200 {string} string "ok"
+// @Failure 400 {string} string "invalid deserialization"
+// @Failure 409 {string} string ""
+// @Failure 500 {string} string "read data problem"
+// @Router /api/text [post]
 func (h *Handler) AddText() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-
 		reqBody, err := io.ReadAll(r.Body)
 		defer r.Body.Close()
 		if err != nil {
@@ -410,10 +501,18 @@ func (h *Handler) AddText() http.HandlerFunc {
 	}
 }
 
-// DeleteText зарегистрировать новую карту
+// DeleteText текст по пользователю и идентификатору
+// @Tags Delete
+// @Summary Удаление текста
+// @Description Удаление выполняется по уникальной паре Ид пользователя + Ид карты.
+// @ID delText
+// @Produce plain
+// @Param id path string true "Text ID"
+// @Success 200 {string} string "ok"
+// @Failure 500 {string} string ""
+// @Router /api/text [delete]
 func (h *Handler) DeleteText() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-
 		textID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
@@ -430,17 +529,26 @@ func (h *Handler) DeleteText() http.HandlerFunc {
 	}
 }
 
-// Binary вернуть данные конкретной карты
+// Binary вернуть данные конкретных бинарных данных
+// @Tags Read
+// @Summary Возвращает данные по логину пользователя
+// @Description на вход rest url на выход json значение
+// @ID readBinary
+// @Produce json
+// @Param id path string true "Binary ID"
+// @Success 200 {object} Binary
+// @Failure 404 {string} string ""
+// @Failure 500 {string} string ""
+// @Router /api/text/{id} [get]
 func (h *Handler) Binary() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-
 		binID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
 		// Запрашиваем инфу по бинарным
 		targetBin, err := h.store.Binary(r.Context(), user.UserID, binID)
 		if err != nil {
-			if err == pgx.ErrNoRows {
+			if errors.Is(err, pgx.ErrNoRows) {
 				rw.WriteHeader(http.StatusNotFound)
 				return
 			}
@@ -461,14 +569,26 @@ func (h *Handler) Binary() http.HandlerFunc {
 	}
 }
 
-// AddBinary зарегистрировать новую карту
+// AddBinary зарегистрировать бинарные данные по пользователю и идентификатору
+// @Tags Add
+// @Summary Регистрация нового набора бинарных данных
+// @Description Регистрация выполняется по уникальной паре Ид пользователя + Ид карты.
+// @ID addBinary
+// @Accept json
+// @Produce plain
+// @Param binary_data body Binary true "Binary object"
+// @Success 200 {string} string "ok"
+// @Failure 400 {string} string "invalid deserialization"
+// @Failure 409 {string} string ""
+// @Failure 500 {string} string "read data problem"
+// @Router /api/text [post]
 func (h *Handler) AddBinary() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
 		reqBody, err := io.ReadAll(r.Body)
 		defer r.Body.Close()
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
-			rw.Write([]byte("Read data problem"))
+			rw.Write([]byte("read data problem"))
 			return
 		}
 
@@ -496,10 +616,18 @@ func (h *Handler) AddBinary() http.HandlerFunc {
 	}
 }
 
-// DeleteBinary зарегистрировать новую карту
+// DeleteBinary удалить бинарные данные по пользователю и идентификатору
+// @Tags Delete
+// @Summary Удаление бинарных данных
+// @Description Удаление выполняется по уникальной паре Ид пользователя + Ид карты.
+// @ID delBinary
+// @Produce plain
+// @Param id path string true "Binary ID"
+// @Success 200 {string} string "ok"
+// @Failure 500 {string} string ""
+// @Router /api/text [delete]
 func (h *Handler) DeleteBinary() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-
 		binID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 

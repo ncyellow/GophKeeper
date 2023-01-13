@@ -1,0 +1,488 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "Сервис по хранения конфиденциальных данных",
+        "title": "GophKeeper API",
+        "contact": {
+            "email": "ncyellow@yandex.ru"
+        },
+        "version": "1.0"
+    },
+    "paths": {
+        "/api/card": {
+            "post": {
+                "description": "Регистрация выполняется по уникальной паре Ид пользователя + Ид карты.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Add"
+                ],
+                "summary": "Регистрация новой карты",
+                "operationId": "addCard",
+                "parameters": [
+                    {
+                        "description": "Card object",
+                        "name": "card_data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/httpserver.Card"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid deserialization",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "read data problem",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаление выполняется по уникальной паре Ид пользователя + Ид карты.",
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Delete"
+                ],
+                "summary": "Удаление карты",
+                "operationId": "delCard",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Card ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/card/{id}": {
+            "get": {
+                "description": "на вход rest url на выход json значение",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Read"
+                ],
+                "summary": "Возвращает данные по карте пользователя",
+                "operationId": "readCard",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Card ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/httpserver.Card"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/login": {
+            "post": {
+                "description": "Регистрация выполняется по уникальной паре Ид пользователя + Ид карты.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Add"
+                ],
+                "summary": "Регистрация нового логина",
+                "operationId": "addLogin",
+                "parameters": [
+                    {
+                        "description": "Login object",
+                        "name": "login_data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/httpserver.Login"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid deserialization",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "read data problem",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаление выполняется по уникальной паре Ид пользователя + Ид карты.",
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Delete"
+                ],
+                "summary": "Удаление логина",
+                "operationId": "delLogin",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Login ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/login/{id}": {
+            "get": {
+                "description": "на вход rest url на выход json значение",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Read"
+                ],
+                "summary": "Возвращает данные по логину пользователя",
+                "operationId": "readLogin",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Login ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/httpserver.Login"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/text": {
+            "post": {
+                "description": "Регистрация выполняется по уникальной паре Ид пользователя + Ид карты.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Add"
+                ],
+                "summary": "Регистрация нового набора бинарных данных",
+                "operationId": "addBinary",
+                "parameters": [
+                    {
+                        "description": "Binary object",
+                        "name": "binary_data",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/httpserver.Binary"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "invalid deserialization",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "409": {
+                        "description": "Conflict",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "read data problem",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Удаление выполняется по уникальной паре Ид пользователя + Ид карты.",
+                "produces": [
+                    "text/plain"
+                ],
+                "tags": [
+                    "Delete"
+                ],
+                "summary": "Удаление бинарных данных",
+                "operationId": "delBinary",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Binary ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/api/text/{id}": {
+            "get": {
+                "description": "на вход rest url на выход json значение",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Read"
+                ],
+                "summary": "Возвращает данные по логину пользователя",
+                "operationId": "readBinary",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Binary ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/httpserver.Binary"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "httpserver.Binary": {
+            "type": "object",
+            "properties": {
+                "data": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "id": {
+                    "type": "string"
+                },
+                "metainfo": {
+                    "type": "string"
+                }
+            }
+        },
+        "httpserver.Card": {
+            "type": "object",
+            "properties": {
+                "cvv": {
+                    "type": "string"
+                },
+                "date": {
+                    "type": "string"
+                },
+                "fio": {
+                    "description": "Написание ФИО на карте может отличаться от реального",
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "metainfo": {
+                    "type": "string"
+                },
+                "number": {
+                    "type": "string"
+                }
+            }
+        },
+        "httpserver.Login": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "string"
+                },
+                "login": {
+                    "type": "string"
+                },
+                "metainfo": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "httpserver.Text": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "metainfo": {
+                    "type": "string"
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "description": "\"Группа запросов на добавление новых данных\"",
+            "name": "Add"
+        },
+        {
+            "description": "\"Группа запросов на чтение данных\"",
+            "name": "Read"
+        },
+        {
+            "description": "\"Группа запросов на удаление данных\"",
+            "name": "Delete"
+        }
+    ]
+}

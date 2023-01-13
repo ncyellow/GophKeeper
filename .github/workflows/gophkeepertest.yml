@@ -1,0 +1,71 @@
+name: autotests
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+
+  devopstest:
+    runs-on: ubuntu-latest
+    container: golang:1.19
+
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Download autotests binaries
+        uses: robinraju/release-downloader@v1.6
+        with:
+          repository: ncyellow/GophKeeper-autotest-bin
+          latest: true
+          fileName: "*"
+          out-file-path: .tools
+
+      - name: Setup autotest binary
+        run: |
+          chmod -R +x $GITHUB_WORKSPACE/.tools
+          mv $GITHUB_WORKSPACE/.tools/gopht /usr/local/bin/gopht
+          mv $GITHUB_WORKSPACE/.tools/statictest /usr/local/bin/statictest
+          
+      - name: Build server binary
+        run: |
+          cd cmd/server
+          go build -o server
+          
+      - name: Build client binary
+        run: |
+          cd cmd/client
+          go build -o client          
+
+      - name: "Code increment #1"
+        if: always()
+        run: |
+          gopht -test.v -test.run=^TestIteration1$ \
+            -client-binary-path=cmd/client/client \
+            -server-binary-path=cmd/server/server \
+            -database-dsn='postgres://postgres:postgres@postgres:5432/testdb?sslmode=disable'
+            
+      - name: "Run statictest"
+        if: always()
+        run: |
+          go vet -vettool=$(which statictest) ./...
+
+      - name: "Run unit tests"
+        run: go test -race -tags fast -coverprofile coverage.txt -covermode atomic ./...
+
+      - name: "Upload coverage report to Codecov"
+        uses: codecov/codecov-action@v3

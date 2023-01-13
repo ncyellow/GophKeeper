@@ -1,4 +1,4 @@
-// Package console реализует запрос с консоли основных сущностей, Карта, Логин, Текстовые данные и др
+// Package console. Эта часть модуля реализует запрос с консоли основных сущностей, Карта, Логин, Текстовые данные и др
 package console
 
 import (
@@ -8,8 +8,9 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/ncyellow/GophKeeper/internal/models"
 	"golang.org/x/term"
+
+	"github.com/ncyellow/GophKeeper/internal/models"
 )
 
 // credentials - читает с консоли логин пароль. Если все ок, то error будет nil

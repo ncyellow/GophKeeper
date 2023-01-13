@@ -1,19 +1,26 @@
+// Package main содержит запуск сервера.
 package main
 
 import (
 	"fmt"
 
+	"github.com/rs/zerolog/log"
+
+	"github.com/ncyellow/GophKeeper/internal/server"
 	"github.com/ncyellow/GophKeeper/internal/server/config"
-	"github.com/ncyellow/GophKeeper/internal/server/httpserver"
 )
 
 func main() {
-	fmt.Printf("Build version: %s\n", config.BuildVersion)
-	fmt.Printf("Build date: %s\n", config.BuildDate)
 	fmt.Println("Server start")
 
-	server := httpserver.HTTPServer{
-		Conf: config.ParseConfig(),
+	conf, err := config.ParseConfig()
+	if err != nil {
+		log.Fatal().Err(err)
 	}
-	server.Run()
+
+	server := server.CreateServer(conf)
+	err = server.Run()
+	if err != nil {
+		log.Fatal().Err(err)
+	}
 }

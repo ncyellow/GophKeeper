@@ -9,14 +9,12 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
+
 	"github.com/ncyellow/GophKeeper/internal/models"
 	"github.com/ncyellow/GophKeeper/internal/server/storage"
 )
 
-var (
-	ErrInvalidLoginPwd = errors.New(`invalid login or password`)
-	ErrInvalidToken    = errors.New(`invalid token`)
-)
+var ErrInvalidToken = errors.New(`invalid token`)
 
 // Claims используем для работы с golang-jwt для подписи токена и его проверки
 type Claims struct {
@@ -31,8 +29,7 @@ type Authorizer struct {
 }
 
 // DefaultParser дефолтный парсер токенов jwt
-type DefaultParser struct {
-}
+type DefaultParser struct{}
 
 // SignIn - проверяет есть ли такой пользователь в базе и генерируем токен
 func (a *Authorizer) SignIn(ctx context.Context, user *models.User) (string, error) {
@@ -43,7 +40,7 @@ func (a *Authorizer) SignIn(ctx context.Context, user *models.User) (string, err
 
 	repoUser, err := a.Store.User(ctx, user.Login, user.Password)
 	if err != nil {
-		return "", ErrInvalidLoginPwd
+		return "", fmt.Errorf("invalid login or password: %w", err)
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &Claims{
@@ -64,7 +61,6 @@ func (p *DefaultParser) ParseToken(accessToken string, signingKey []byte) (strin
 		}
 		return signingKey, nil
 	})
-
 	if err != nil {
 		return "", err
 	}

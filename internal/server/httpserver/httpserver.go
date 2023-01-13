@@ -3,23 +3,31 @@ package httpserver
 
 import (
 	"context"
+	"errors"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
 
+	"github.com/rs/zerolog/log"
+
 	"github.com/ncyellow/GophKeeper/internal/server/auth/jwt"
 	"github.com/ncyellow/GophKeeper/internal/server/config"
 	"github.com/ncyellow/GophKeeper/internal/server/storage"
-	"github.com/rs/zerolog/log"
 )
 
+// HTTPServer структура нашего https сервера. Реализует интерфейс Server
 type HTTPServer struct {
 	Conf *config.Config
 }
 
-func (s *HTTPServer) Run() {
-	store := storage.NewPgStorage(s.Conf)
+// Run блокирующая функция по запуску сервера
+func (s *HTTPServer) Run() error {
+	store, err := storage.NewPgStorage(s.Conf)
+	if err != nil {
+		return err
+	}
+
 	router := NewRouter(s.Conf, store, &jwt.DefaultParser{})
 
 	srv := http.Server{
@@ -45,10 +53,11 @@ func (s *HTTPServer) Run() {
 	}()
 
 	go func() {
-		if err := http.ListenAndServe(s.Conf.Address, router); err != nil && err != http.ErrServerClosed {
+		if err := srv.ListenAndServeTLS(s.Conf.CryptoCrt, s.Conf.CryptoKey); err != nil && !errors.Is(err, http.ErrServerClosed) {
 			log.Error().Msgf("listen: %s", err)
 		}
 	}()
 	<-idleConnsClosed
 	log.Info().Msg("Server Shutdown gracefully")
+	return nil
 }

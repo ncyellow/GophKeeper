@@ -5,7 +5,6 @@ import (
 	"flag"
 
 	"github.com/caarlos0/env/v6"
-	"github.com/rs/zerolog/log"
 )
 
 var (
@@ -15,14 +14,22 @@ var (
 
 // Config структура для работы с конфигурацией клиента
 type Config struct {
-	Address string `env:"ADDRESS"`
+	Address     string `env:"ADDRESS"`
+	GRPCAddress string `env:"GRPC_ADDRESS"`
+	CryptoCrt   string `env:"CRYPTO_CERT"`
+	CryptoKey   string `env:"CRYPTO_KEY"`
+	CACertFile  string `env:"CA_CERT_KEY"`
 }
 
 // ParseConfig парсинг ENV и командной строки для получения конфигурации
-func ParseConfig() *Config {
+func ParseConfig() (*Config, error) {
 	var cfg Config
 
-	flag.StringVar(&cfg.Address, "a", "localhost:8085", "address in the format host:port")
+	flag.StringVar(&cfg.Address, "addr", "https://localhost", "address in the format host:port")
+	flag.StringVar(&cfg.CryptoCrt, "crypto-crt", "", "*.crt filepath")
+	flag.StringVar(&cfg.CryptoKey, "crypto-key", "", "*.key filepath")
+	flag.StringVar(&cfg.CACertFile, "crypto-ca", "", "*.key filepath for ca")
+	flag.StringVar(&cfg.GRPCAddress, "grp-addr", ":3200", "grpc address in the format host:port")
 
 	// Сначала парсим командную строку
 	flag.Parse()
@@ -30,7 +37,8 @@ func ParseConfig() *Config {
 	// Далее приоритетно аргументы из ENV
 	err := env.Parse(&cfg)
 	if err != nil {
-		log.Fatal().Err(err)
+		return nil, err
 	}
-	return &cfg
+
+	return &cfg, nil
 }

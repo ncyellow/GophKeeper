@@ -7,27 +7,31 @@ import (
 	"strings"
 
 	"github.com/c-bata/go-prompt"
+
 	"github.com/ncyellow/GophKeeper/internal/client/api"
 	"github.com/ncyellow/GophKeeper/internal/client/config"
 )
 
+// LivePrefixState вспомогательная структура для того,
+// чтобы сделать красивое приглашение с именем авторизованного пользователя
 var LivePrefixState struct {
 	LivePrefix string
 	IsEnable   bool
 }
 
+// changeLivePrefix спец функция для работы с приглашением ввода через библиотеку go-prompt
 func changeLivePrefix() (string, bool) {
 	return LivePrefixState.LivePrefix, LivePrefixState.IsEnable
 }
 
 // Console структура по обработке ввода с клавиатуры. С использованием go-prompt
 type Console struct {
-	Conf *config.Config
+	Conf   *config.Config
+	Client api.Sender
 }
 
 // CreateExecutor функция обработки всех введенных с клавиатуры команд
-func CreateExecutor(conf *config.Config) func(string) {
-	sender := api.NewHTTPSender(conf)
+func CreateExecutor(sender api.Sender) func(string) {
 	return func(t string) {
 		s := strings.TrimSpace(t)
 		commands := strings.Split(s, " ")
@@ -91,7 +95,6 @@ func CreateExecutor(conf *config.Config) func(string) {
 			if len(commands) != 2 {
 				fmt.Println("Введите идентификатор карты!")
 			} else {
-
 				err := sender.DelCard(commands[1])
 				if err != nil {
 					fmt.Println(err.Error())
@@ -207,10 +210,8 @@ func CreateExecutor(conf *config.Config) func(string) {
 func completer(d prompt.Document) []prompt.Suggest {
 	var s []prompt.Suggest
 	if d.Text != "" {
-
 		words := strings.Split(d.Text, " ")
 		if len(words) == 1 {
-
 			s = []prompt.Suggest{
 				{Text: "register", Description: "Create new user"},
 				{Text: "signin", Description: "SignIn user"},
@@ -242,7 +243,7 @@ func completer(d prompt.Document) []prompt.Suggest {
 
 // Run запуск нашей собственной консоли с приглашением
 func (p *Console) Run() {
-	executor := CreateExecutor(p.Conf)
+	executor := CreateExecutor(p.Client)
 	prom := prompt.New(
 		executor,
 		completer,

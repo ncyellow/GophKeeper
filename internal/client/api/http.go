@@ -1,33 +1,20 @@
-// Package api модуль реализует http client для взаимодействия с сервером
 package api
 
 import (
 	"bytes"
+	"crypto/tls"
+	"crypto/x509"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
+	"os"
 
 	"github.com/ncyellow/GophKeeper/internal/client/config"
 	"github.com/ncyellow/GophKeeper/internal/models"
 )
 
-var (
-	ErrInternalServer    = errors.New("cервер недоступен, попробуйте позднее")
-	ErrServerTimout      = errors.New("cервер недоступен, попробуйте позднее")
-	ErrSerialization     = errors.New("ошибка сериализации")
-	ErrDeserialization   = errors.New("ошибка десериализации")
-	ErrRequestPrepare    = errors.New("не удалось подготовить http запрос")
-	ErrUserAlreadyExists = errors.New("уже зарегистрирован пользователь с таким логином")
-	ErrUserNotFound      = errors.New("пользователь с таким логином не найден")
-	ErrAuthRequire       = errors.New("необходим авторизоваться")
-
-	ErrAlreadyExists = errors.New("ID с таким идентификатором уже зарегистрирован")
-	ErrNotFound      = errors.New("не найдена запись с таким идентификатором")
-)
-
-// HTTPSender структура http клиента
+// HTTPSender структура http клиента. Реализует интерфейс Sender. Все комментарий по соотв. методам см там.
 type HTTPSender struct {
 	Client    *http.Client
 	Conf      *config.Config
@@ -35,15 +22,40 @@ type HTTPSender struct {
 }
 
 // NewHTTPSender конструктор http клиента
-func NewHTTPSender(conf *config.Config) *HTTPSender {
+func NewHTTPSender(conf *config.Config) (*HTTPSender, error) {
+	clientCertFile := conf.CryptoCrt
+	clientKeyFile := conf.CryptoKey
+	caCertFile := conf.CACertFile
+
+	cert, err := tls.LoadX509KeyPair(clientCertFile, clientKeyFile)
+	if err != nil {
+		return nil, err
+	}
+
+	caCert, err := os.ReadFile(caCertFile)
+	if err != nil {
+		return nil, err
+	}
+
+	caCertPool := x509.NewCertPool()
+	caCertPool.AppendCertsFromPEM(caCert)
+
+	t := &http.Transport{
+		TLSClientConfig: &tls.Config{
+			Certificates: []tls.Certificate{cert},
+			RootCAs:      caCertPool,
+		},
+	}
+
 	return &HTTPSender{
-		Client:    &http.Client{},
+		Client: &http.Client{
+			Transport: t,
+		},
 		Conf:      conf,
 		AuthToken: nil,
-	}
+	}, nil
 }
 
-// Register запрос на сервер по регистрации клиента
 func (s *HTTPSender) Register(login string, pwd string) error {
 	user := models.User{
 		Login:    login,
@@ -57,13 +69,13 @@ func (s *HTTPSender) Register(login string, pwd string) error {
 
 	req, err := http.NewRequest("POST", s.Conf.Address+"/api/register", bytes.NewBuffer(result))
 	if err != nil {
-		return ErrRequestPrepare
+		return fmt.Errorf(FmtErrRequestPrepare, err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := s.Client.Do(req)
 	if err != nil {
-		return ErrServerTimout
+		return fmt.Errorf(FmtErrServerTimout, err)
 	}
 	defer resp.Body.Close()
 
@@ -78,9 +90,7 @@ func (s *HTTPSender) Register(login string, pwd string) error {
 	return nil
 }
 
-// SignIn запрос на сервер по авторизации клиента
 func (s *HTTPSender) SignIn(login string, pwd string) error {
-
 	user := models.User{
 		Login:    login,
 		Password: pwd,
@@ -93,13 +103,13 @@ func (s *HTTPSender) SignIn(login string, pwd string) error {
 
 	req, err := http.NewRequest("POST", s.Conf.Address+"/api/signin", bytes.NewBuffer(result))
 	if err != nil {
-		return ErrRequestPrepare
+		return fmt.Errorf(FmtErrRequestPrepare, err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := s.Client.Do(req)
 	if err != nil {
-		return ErrServerTimout
+		return fmt.Errorf(FmtErrServerTimout, err)
 	}
 	defer resp.Body.Close()
 
@@ -112,18 +122,16 @@ func (s *HTTPSender) SignIn(login string, pwd string) error {
 	return nil
 }
 
-// AddCard запрос добавления новой карты
 func (s *HTTPSender) AddCard(card *models.Card) error {
 	data, ok := json.Marshal(card)
 	if ok != nil {
 		return ErrSerialization
 	}
-	return s.Add(data, "/api/card")
+	return s.add(data, "/api/card")
 }
 
-// Card запрос на чтение уже существующей по ид карты
 func (s *HTTPSender) Card(cardID string) (*models.Card, error) {
-	data, err := s.Read(cardID, "api/card")
+	data, err := s.read(cardID, "api/card")
 	if err != nil {
 		return nil, err
 	}
@@ -132,29 +140,25 @@ func (s *HTTPSender) Card(cardID string) (*models.Card, error) {
 	err = json.Unmarshal(data, &card)
 
 	if err != nil {
-		return nil, ErrDeserialization
+		return nil, fmt.Errorf(FmtErrDeserialization, err)
 	}
 	return &card, nil
 }
 
-// DelCard запрос на удаление уже существующей по ид карты
 func (s *HTTPSender) DelCard(cardID string) error {
-	return s.Del(cardID, "api/card")
+	return s.del(cardID, "api/card")
 }
 
-// AddLogin запрос добавления нового логина
 func (s *HTTPSender) AddLogin(login *models.Login) error {
 	data, ok := json.Marshal(login)
 	if ok != nil {
 		return ErrSerialization
 	}
-	return s.Add(data, "/api/login")
+	return s.add(data, "/api/login")
 }
 
-// Login запрос на чтение уже существующего логина по ид
 func (s *HTTPSender) Login(loginID string) (*models.Login, error) {
-
-	data, err := s.Read(loginID, "api/login")
+	data, err := s.read(loginID, "api/login")
 	if err != nil {
 		return nil, err
 	}
@@ -163,29 +167,25 @@ func (s *HTTPSender) Login(loginID string) (*models.Login, error) {
 	err = json.Unmarshal(data, &login)
 
 	if err != nil {
-		return nil, ErrDeserialization
+		return nil, fmt.Errorf(FmtErrDeserialization, err)
 	}
 	return &login, nil
 }
 
-// DelLogin запрос на удаление уже существующего логина по ид
 func (s *HTTPSender) DelLogin(loginID string) error {
-	return s.Del(loginID, "api/login")
+	return s.del(loginID, "api/login")
 }
 
-// AddText запрос на чтение уже существующего текста по ид
 func (s *HTTPSender) AddText(text *models.Text) error {
-
 	data, ok := json.Marshal(text)
 	if ok != nil {
 		return ErrSerialization
 	}
-	return s.Add(data, "api/txt")
+	return s.add(data, "api/txt")
 }
 
-// Text запрос на чтение уже существующего текста по ид
 func (s *HTTPSender) Text(textID string) (*models.Text, error) {
-	data, err := s.Read(textID, "api/txt")
+	data, err := s.read(textID, "api/txt")
 	if err != nil {
 		return nil, err
 	}
@@ -194,28 +194,25 @@ func (s *HTTPSender) Text(textID string) (*models.Text, error) {
 	var text models.Text
 	err = json.Unmarshal(data, &text)
 	if err != nil {
-		return nil, ErrDeserialization
+		return nil, fmt.Errorf(FmtErrDeserialization, err)
 	}
 	return &text, nil
 }
 
-// DelText запрос на удаление уже существующего текста по ид
 func (s *HTTPSender) DelText(textID string) error {
-	return s.Del(textID, "api/txt")
+	return s.del(textID, "api/txt")
 }
 
-// AddBin запрос на добавление уже существующих бинарных данных по ид
 func (s *HTTPSender) AddBin(binary *models.Binary) error {
 	data, ok := json.Marshal(binary)
 	if ok != nil {
 		return ErrSerialization
 	}
-	return s.Add(data, "api/bin")
+	return s.add(data, "api/bin")
 }
 
-// Bin запрос на чтение уже существующего бинарных данных по ид
 func (s *HTTPSender) Bin(binID string) (*models.Binary, error) {
-	data, err := s.Read(binID, "api/bin")
+	data, err := s.read(binID, "api/bin")
 	if err != nil {
 		return nil, err
 	}
@@ -224,32 +221,31 @@ func (s *HTTPSender) Bin(binID string) (*models.Binary, error) {
 	err = json.Unmarshal(data, &binary)
 
 	if err != nil {
-		return nil, ErrDeserialization
+		return nil, fmt.Errorf(FmtErrDeserialization, err)
 	}
 	return &binary, nil
 }
 
-// DelBin запрос на удаление уже существующих бинарных данных по ид
 func (s *HTTPSender) DelBin(binID string) error {
-	return s.Del(binID, "api/bin")
+	return s.del(binID, "api/bin")
 }
 
-// Add общий метод по добавлению на сервер. Содержит общую часть для любого типа данных
-func (s *HTTPSender) Add(data []byte, urlSuffix string) error {
+// add общий метод по добавлению на сервер. Содержит общую часть для любого типа данных
+func (s *HTTPSender) add(data []byte, urlSuffix string) error {
 	if s.AuthToken == nil {
 		return ErrAuthRequire
 	}
 
 	req, err := http.NewRequest("POST", s.Conf.Address+urlSuffix, bytes.NewBuffer(data))
 	if err != nil {
-		return ErrRequestPrepare
+		return fmt.Errorf(FmtErrRequestPrepare, err)
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Authorization", *s.AuthToken)
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := s.Client.Do(req)
 	if err != nil {
-		return ErrServerTimout
+		return fmt.Errorf(FmtErrServerTimout, err)
 	}
 	defer resp.Body.Close()
 
@@ -261,21 +257,21 @@ func (s *HTTPSender) Add(data []byte, urlSuffix string) error {
 	return nil
 }
 
-// Read общий метод по чтение с сервера. Содержит общую часть для любого типа данных
-func (s *HTTPSender) Read(textID string, urlSuffix string) ([]byte, error) {
+// read общий метод по чтение с сервера. Содержит общую часть для любого типа данных
+func (s *HTTPSender) read(textID string, urlSuffix string) ([]byte, error) {
 	if s.AuthToken == nil {
 		return nil, ErrAuthRequire
 	}
 
 	req, err := http.NewRequest("GET", fmt.Sprintf("%s/%s/%s", s.Conf.Address, urlSuffix, textID), nil)
 	if err != nil {
-		return nil, ErrRequestPrepare
+		return nil, fmt.Errorf(FmtErrRequestPrepare, err)
 	}
 	req.Header.Set("Authorization", *s.AuthToken)
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := s.Client.Do(req)
 	if err != nil {
-		return nil, ErrServerTimout
+		return nil, fmt.Errorf(FmtErrServerTimout, err)
 	}
 	defer resp.Body.Close()
 
@@ -290,27 +286,27 @@ func (s *HTTPSender) Read(textID string, urlSuffix string) ([]byte, error) {
 	reqBody, err := io.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
-		return nil, ErrSerialization
+		return nil, fmt.Errorf(FmtErrSerialization, err)
 	}
 	return reqBody, nil
 }
 
-// Del общий метод по удалению с сервера. Содержит общую часть для любого типа данных
-func (s *HTTPSender) Del(binID string, urlSuffix string) error {
+// del общий метод по удалению с сервера. Содержит общую часть для любого типа данных
+func (s *HTTPSender) del(binID string, urlSuffix string) error {
 	if s.AuthToken == nil {
 		return ErrAuthRequire
 	}
 
 	req, err := http.NewRequest("DELETE", fmt.Sprintf("%s/%s/%s", s.Conf.Address, urlSuffix, binID), nil)
 	if err != nil {
-		return ErrRequestPrepare
+		return fmt.Errorf(FmtErrRequestPrepare, err)
 	}
 
 	req.Header.Set("Authorization", *s.AuthToken)
 
-	resp, err := http.DefaultClient.Do(req)
+	resp, err := s.Client.Do(req)
 	if err != nil {
-		return ErrServerTimout
+		return fmt.Errorf(FmtErrServerTimout, err)
 	}
 	defer resp.Body.Close()
 
