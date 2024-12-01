@@ -44,7 +44,7 @@ jobs:
       - name: Build server binary
         run: |
           cd cmd/server
-          go build -o server
+          go build -o server -buildvcs=false 
           
       - name: Build client binary
         run: |
