@@ -1,41 +1,38 @@
 # GophKeeper
 
+## Working with HTTPS
+#### To run the client in HTTPS mode, you need to provide flags or environment variables:
 
-## Работа через https
-#### Для работы клиента в режиме https нам необходимо передать флаги или переменные окружения
+`client -addr "https://localhost" -crypto-crt "*.crt" -crypto-key "*.key" -crypto-ca "*.key"`
 
-client -addr "https://localhost"  -crypto-crt "*.crt"  -crypto-key "*.key" -crypto-ca "*.key"
+where:  
+- `-addr` is the server's address  
+- `-crypto-ca` is the key used to sign the certificates  
+- `-crypto-crt` is the certificate  
+- `-crypto-key` is the client's key  
 
-где: \
--addr путь до сервера \
--crypto-ca ключ которым подписаны сертификаты\
--crypto-crt сертификат \
--crypto-key клиентский ключ
+#### To run the server in HTTPS mode, you need to provide flags or environment variables:
 
-#### Для работы Сервера в режиме https нам необходимо передать флаги или переменные окружения
+`server -addr ":443" -crypto-crt "*.crt" -crypto-key "*.key" -dns "user=postgres password=12345 host=localhost port=5433 dbname=gophkeep"`
 
-server -addr ":443"  -crypto-crt "*.crt"  -crypto-key "*.key" -dns "user=postgres password=12345 host=localhost port=5433 dbname=gophkeep"
+where:  
+- `-addr` is the server's address  
+- `-crypto-crt` is the certificate  
+- `-crypto-key` is the server's key  
+- `-dns` is the connection string to the database  
 
-где: \
--addr путь до сервера \
--crypto-crt сертификат \
--crypto-key серверный ключ \
--dns строка подключения к БД
+## Working with gRPC
+#### To run the client in gRPC mode, you need to provide flags or environment variables:
 
+`client -grpc-addr ":3200"`
 
+where:  
+- `-grpc-addr` is the server's address  
 
-## Работа через grpc
-#### Для работы клиента в режиме grpc нам необходимо передать флаги или переменные окружения
+#### To run the server in gRPC mode, you need to provide flags or environment variables:
 
-client -grpc-addr ":3200"  
+`server -grpc-addr ":3200" -dns "user=postgres password=12345 host=localhost port=5433 dbname=gophkeep"`
 
-где: \
--grpc-addr путь до сервера
-
-#### Для работы Сервера в режиме grpc нам необходимо передать флаги или переменные окружения
-
-server -grpc-addr ":3200"  -dns "user=postgres password=12345 host=localhost port=5433 dbname=gophkeep"
-
-где: \
--grpc-addr путь до сервера \
--dns строка подключения к БД
+where:  
+- `-grpc-addr` is the server's address  
+- `-dns` is the connection string to the database  

@@ -2,3 +2,5 @@
 cmd/client/client
 cmd/server/server
 .idea
+cmd/client/client.exe
+cmd/server/server.exe
