@@ -49,7 +49,7 @@ jobs:
       - name: Build client binary
         run: |
           cd cmd/client
-          go build -o client          
+          go build -buildvcs=false -o client          
 
       - name: "Code increment #1"
         if: always()
