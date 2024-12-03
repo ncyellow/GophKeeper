@@ -7,7 +7,6 @@ import (
 )
 
 // Storage описываем интерфейс для записи и чтения в бд, аналогичен HTTP API
-// Пока просто схема
 type Storage interface {
 	Register(ctx context.Context, user models.User) (int64, error)
 	UserByLogin(ctx context.Context, login string) (*models.User, error)

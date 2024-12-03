@@ -1,4 +1,4 @@
-// Package httpserver - реализует создание и запуск сервера
+// Package httpserver implements the creation and launch of a server
 package httpserver
 
 import (
@@ -16,12 +16,12 @@ import (
 	"github.com/ncyellow/GophKeeper/internal/server/storage"
 )
 
-// HTTPServer структура нашего https сервера. Реализует интерфейс Server
+// HTTPServer structure of our HTTPS server. Implements the Server interface
 type HTTPServer struct {
 	Conf *config.Config
 }
 
-// Run блокирующая функция по запуску сервера
+// Run a blocking function for starting the server
 func (s *HTTPServer) Run() error {
 	store, err := storage.NewPgStorage(s.Conf)
 	if err != nil {
@@ -40,15 +40,15 @@ func (s *HTTPServer) Run() error {
 	signal.Notify(done, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-		// ждем прерывание
+		// waiting for an interrupt
 		<-done
-		// гасим сервер
+		// shutting down the server
 		if err := srv.Shutdown(context.Background()); err != nil {
-			// ошибки закрытия Listener
+			// errors closing the Listener
 			log.Info().Msgf("HTTP server Shutdown: %v", err)
 		}
-		// сообщаем основному потоку,
-		// что все сетевые соединения обработаны и закрыты
+		// notifying the main thread
+		// that all network connections have been processed and closed
 		close(idleConnsClosed)
 	}()
 

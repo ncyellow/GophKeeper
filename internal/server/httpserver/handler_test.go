@@ -43,8 +43,8 @@ type HandlersSuite struct {
 	ts     *httptest.Server
 }
 
-// SetupSuite перед началом теста стартуем новый сервер httptest.Server делаем так, чтобы тестировать каждый
-// handler отдельно и не сливать все тесты в один
+// SetupSuite before starting the test, we launch a new httptest.Server
+// to test each handler separately and avoid merging all tests into one
 func (suite *HandlersSuite) SetupTest() {
 	ctrl := gomock.NewController(suite.T())
 	defer ctrl.Finish()
@@ -60,19 +60,19 @@ func (suite *HandlersSuite) SetupTest() {
 	suite.ts = httptest.NewServer(r)
 }
 
-// TearDownSuite после теста отключаем сервер
+// TearDownSuite - after the test, we shut down the server
 func (suite *HandlersSuite) TearDownTest() {
 	suite.store.EXPECT().Close()
 	suite.store.Close()
 	suite.ts.Close()
 }
 
-// TestHandlersSuite старт нашего HandlersSuite
+// TestHandlersSuite - start of our HandlersSuite
 func TestHandlersSuite(t *testing.T) {
 	suite.Run(t, new(HandlersSuite))
 }
 
-// runTestRequest вспомогательная функция для выполнения http запроса
+// runTestRequest - helper function for executing an HTTP request
 func runTestRequest(t *testing.T, ts *httptest.Server, method, path string, contentType string, reqBody []byte) (*http.Response, string) {
 	req, err := http.NewRequest(method, ts.URL+path, bytes.NewBuffer(reqBody))
 	require.NoError(t, err)
@@ -88,7 +88,7 @@ func runTestRequest(t *testing.T, ts *httptest.Server, method, path string, cont
 	return resp, string(respBody)
 }
 
-// runTableTests хелпер на запуск группы списочных тестов
+// runTableTests helper for running a group of list-based tests
 func (suite *HandlersSuite) runTableTests(testList []tests) {
 	for _, tt := range testList {
 		if tt.mockExpected != nil {
@@ -101,7 +101,7 @@ func (suite *HandlersSuite) runTableTests(testList []tests) {
 	}
 }
 
-// TestRegisterHandler основные тесты по регистрации
+// TestRegisterHandler base registration tests
 func (suite *HandlersSuite) TestRegisterHandler() {
 	testData := []tests{
 		{
@@ -136,13 +136,13 @@ func (suite *HandlersSuite) TestRegisterHandler() {
 			body:        []byte(`{"login": "login", "password": "password"}`),
 
 			mockExpected: func() {
-				// Регистрация успешная вернулся id без ошибок
+				// Registration successful, returned ID without errors
 				suite.store.EXPECT().Register(gomock.Any(), models.User{
 					Login:    "login",
 					Password: "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8", // sha1
 				}).Return(int64(1), nil)
 
-				// После регистрации аутентификация
+				// After registration - authentication
 				suite.store.EXPECT().User(gomock.Any(), "login",
 					"5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8").Return(&models.User{
 					Login:    "login",
@@ -162,7 +162,7 @@ func (suite *HandlersSuite) TestRegisterHandler() {
 			body:        []byte(`{"login": "login", "password": "password"}`),
 
 			mockExpected: func() {
-				// Регистрация успешная вернулся id без ошибок
+				// Registration successful, returned ID without errors
 				suite.store.EXPECT().Register(gomock.Any(), models.User{
 					Login:    "login",
 					Password: "5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8", // sha1
@@ -173,12 +173,11 @@ func (suite *HandlersSuite) TestRegisterHandler() {
 				body:       "already have",
 			},
 		},
-		//! тут еще нужен тест на проблемы базы, но не конфликт вставки в просто проблемы с базой
 	}
 	suite.runTableTests(testData)
 }
 
-// TestRegisterHandler основные тесты по аутентификации
+// TestRegisterHandler base authentication tests
 func (suite *HandlersSuite) TestSignIn() {
 	testData := []tests{
 		{
@@ -232,7 +231,7 @@ func (suite *HandlersSuite) TestSignIn() {
 	suite.runTableTests(testData)
 }
 
-// TestCard тесты по чтение карт
+// TestCard сard reading tests
 func (suite *HandlersSuite) TestCard() {
 	userID := int64(1)
 	cardID := "testID"
@@ -316,7 +315,7 @@ func (suite *HandlersSuite) TestCard() {
 	suite.runTableTests(testData)
 }
 
-// TestLogin тесты по запросу логинов
+// TestLogin login request tests
 func (suite *HandlersSuite) TestLogin() {
 	userID := int64(1)
 	loginID := "testID"
@@ -399,7 +398,7 @@ func (suite *HandlersSuite) TestLogin() {
 	suite.runTableTests(testData)
 }
 
-// TestText тесты по запросу текста
+// TestText text request tests
 func (suite *HandlersSuite) TestText() {
 	userID := int64(1)
 	textID := "testID"
@@ -481,7 +480,7 @@ func (suite *HandlersSuite) TestText() {
 	suite.runTableTests(testData)
 }
 
-// TestText тесты по запросу бинарных данных
+// TestText binary data request tests
 func (suite *HandlersSuite) TestBin() {
 	userID := int64(1)
 	binID := "testID"
@@ -563,7 +562,7 @@ func (suite *HandlersSuite) TestBin() {
 	suite.runTableTests(testData)
 }
 
-// TestAddCard тесты по добавлению карт
+// TestAddCard card addition tests.
 func (suite *HandlersSuite) TestAddCard() {
 	userID := int64(1)
 	cardID := "testID"
@@ -646,7 +645,7 @@ func (suite *HandlersSuite) TestAddCard() {
 	suite.runTableTests(testData)
 }
 
-// TestDelCard тесты по удалению карт
+// TestDelCard card delete tests.
 func (suite *HandlersSuite) TestDelCard() {
 	userID := int64(1)
 	cardID := "testID"
@@ -699,7 +698,7 @@ func (suite *HandlersSuite) TestDelCard() {
 	suite.runTableTests(testData)
 }
 
-// TestAddLogin тесты по добавлению логинов
+// TestAddLogin login addition tests.
 func (suite *HandlersSuite) TestAddLogin() {
 	userID := int64(1)
 	loginID := "testID"
@@ -779,7 +778,7 @@ func (suite *HandlersSuite) TestAddLogin() {
 	suite.runTableTests(testData)
 }
 
-// TestDelLogin тесты по удалению логинов
+// TestDelLogin login delete tests.
 func (suite *HandlersSuite) TestDelLogin() {
 	userID := int64(1)
 	loginID := "testID"
@@ -832,7 +831,7 @@ func (suite *HandlersSuite) TestDelLogin() {
 	suite.runTableTests(testData)
 }
 
-// TestAddText тесты по добавлению текста
+// TestAddText text addition tests.
 func (suite *HandlersSuite) TestAddText() {
 	userID := int64(1)
 	textID := "testID"
@@ -911,7 +910,7 @@ func (suite *HandlersSuite) TestAddText() {
 	suite.runTableTests(testData)
 }
 
-// TestDelText тесты по удалению текстов
+// TestDelText text delete tests.
 func (suite *HandlersSuite) TestDelText() {
 	userID := int64(1)
 	textID := "testID"
@@ -964,7 +963,7 @@ func (suite *HandlersSuite) TestDelText() {
 	suite.runTableTests(testData)
 }
 
-// TestAddBin тесты по добавлению binary
+// TestAddBin binary addition tests.
 func (suite *HandlersSuite) TestAddBin() {
 	userID := int64(1)
 	binID := "testID"
@@ -1043,7 +1042,7 @@ func (suite *HandlersSuite) TestAddBin() {
 	suite.runTableTests(testData)
 }
 
-// TestDelBin тесты по удалению binary
+// TestDelBin binary delete tests.
 func (suite *HandlersSuite) TestDelBin() {
 	userID := int64(1)
 	binID := "testID"
