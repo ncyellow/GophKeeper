@@ -1,4 +1,4 @@
-// Package httpserver реализует http обработчики через chi.NewRouter
+// Package httpserver implements HTTP handlers using chi.NewRouter
 package httpserver
 
 import (
@@ -21,28 +21,28 @@ import (
 )
 
 // @Title GophKeeper API
-// @Description Сервис по хранения конфиденциальных данных
+// @Description Service for storing confidential data
 // @Version 1.0
 
 // @Contact.email ncyellow@yandex.ru
 
 // @Tag.name Add
-// @Tag.description "Группа запросов на добавление новых данных"
+// @Tag.description "Group of requests for adding new data"
 
 // @Tag.name Read
-// @Tag.description "Группа запросов на чтение данных"
+// @Tag.description "Group of requests for reading data"
 
 // @Tag.name Delete
-// @Tag.description "Группа запросов на удаление данных"
+// @Tag.description "Group of requests for deleting data"
 
-// Handler структура реализует chi.Mux для работы роутинга
+// Handler structure implements chi.Mux for routing functionality
 type Handler struct {
 	*chi.Mux
 	store      storage.Storage
 	authorizer *jwt.Authorizer
 }
 
-// NewRouter конструктор нашего объекта роутинга
+// NewRouter constructor of our routing object
 func NewRouter(conf *config.Config, store storage.Storage, parser jwt.Parser) chi.Router {
 	r := chi.NewRouter()
 	r.Use(middleware.Recoverer)
@@ -66,24 +66,24 @@ func NewRouter(conf *config.Config, store storage.Storage, parser jwt.Parser) ch
 
 	r.Group(func(r chi.Router) {
 		r.Use(auth.Auth(store, conf, parser))
-		// Тут будут обработчики ^_^
+		// Here will be the handlers ^_^
 
-		// API для работы с банковскими картами
+		// API for working with bank cards
 		r.Get("/api/card/{id}", handler.Card())
 		r.Post("/api/card", handler.AddCard())
 		r.Delete("/api/card/{id}", handler.DeleteCard())
 
-		// API для работы с логинами
+		// API for working with logins
 		r.Get("/api/login/{id}", handler.Login())
 		r.Post("/api/login", handler.AddLogin())
 		r.Delete("/api/login/{id}", handler.DeleteLogin())
 
-		// API для работы с текстовыми данными
+		// API for working with text data
 		r.Get("/api/txt/{id}", handler.Text())
 		r.Post("/api/txt", handler.AddText())
 		r.Delete("/api/txt/{id}", handler.DeleteText())
 
-		// API для работы с бинарными данными
+		// API for working with binary data
 		r.Get("/api/bin/{id}", handler.Binary())
 		r.Post("/api/bin", handler.AddBinary())
 		r.Delete("/api/bin/{id}", handler.DeleteBinary())
@@ -91,10 +91,10 @@ func NewRouter(conf *config.Config, store storage.Storage, parser jwt.Parser) ch
 	return handler
 }
 
-// Register регистрация пользователя
+// Register register user
 func (h *Handler) Register() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-		// Проверяем Content-Type
+		// check Content-Type
 		if r.Header.Get("Content-Type") != "application/json" {
 			rw.WriteHeader(http.StatusBadRequest)
 			rw.Write([]byte("content type not support"))
@@ -108,7 +108,7 @@ func (h *Handler) Register() http.HandlerFunc {
 			return
 		}
 
-		// разбираем сообщение
+		// parse message
 		var user models.User
 		err = json.Unmarshal(reqBody, &user)
 		if err != nil {
@@ -124,7 +124,7 @@ func (h *Handler) Register() http.HandlerFunc {
 		hashPwd := fmt.Sprintf("%x", pwd.Sum(nil))
 		user.Password = hashPwd
 
-		// Выполняем попытку регистрации
+		// Attempting registration
 		_, err = h.store.Register(r.Context(), user)
 		if err != nil {
 			rw.WriteHeader(http.StatusConflict)
@@ -133,7 +133,7 @@ func (h *Handler) Register() http.HandlerFunc {
 		}
 
 		user.Password = originalPassword
-		// Генерация токена если регистрация успешна
+		// Generating token if registration is successful
 		jwtToken, err := h.authorizer.SignIn(r.Context(), &user)
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
@@ -146,10 +146,10 @@ func (h *Handler) Register() http.HandlerFunc {
 	}
 }
 
-// SignIn аутентификация
+// SignIn authentication
 func (h *Handler) SignIn() http.HandlerFunc {
 	return func(rw http.ResponseWriter, r *http.Request) {
-		// Проверяем Content-Type
+		// check Content-Type
 		if r.Header.Get("Content-Type") != "application/json" {
 			rw.WriteHeader(http.StatusBadRequest)
 			rw.Write([]byte("content type not support"))
@@ -163,7 +163,7 @@ func (h *Handler) SignIn() http.HandlerFunc {
 			return
 		}
 
-		// разбираем сообщение
+		// parse message
 		var user models.User
 		err = json.Unmarshal(reqBody, &user)
 
@@ -173,9 +173,9 @@ func (h *Handler) SignIn() http.HandlerFunc {
 			return
 		}
 
-		// Попытка аутентификации если проходит - генерируем токен
+		// Attempting authentication, if successful - generate token
 		jwtToken, err := h.authorizer.SignIn(r.Context(), &user)
-		// либо 200, либо 401
+		// Either 200 or 401
 		if err != nil {
 			rw.WriteHeader(http.StatusUnauthorized)
 			rw.Write([]byte("invalid login or password"))
@@ -187,10 +187,10 @@ func (h *Handler) SignIn() http.HandlerFunc {
 	}
 }
 
-// Card вернуть данные конкретной карты
+// Card return specific card data
 // @Tags Read
-// @Summary Возвращает данные по карте пользователя
-// @Description на вход rest url на выход json значение
+// @Summary Returns user card data
+// @Description input rest URL, output JSON value
 // @ID readCard
 // @Produce json
 // @Param id path string true "Card ID"
@@ -203,7 +203,7 @@ func (h *Handler) Card() http.HandlerFunc {
 		cardID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
-		// Запрашиваем инфу по карте
+		// Requesting card information
 		targetCard, err := h.store.Card(r.Context(), user.UserID, cardID)
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
@@ -227,10 +227,10 @@ func (h *Handler) Card() http.HandlerFunc {
 	}
 }
 
-// AddCard зарегистрировать новую карту
+// AddCard register a new card
 // @Tags Add
-// @Summary Регистрация новой карты
-// @Description Регистрация выполняется по уникальной паре Ид пользователя + Ид карты.
+// @Summary Registering a new card
+// @Description Registration is performed using a unique pair of User ID + Card ID.
 // @ID addCard
 // @Accept json
 // @Produce plain
@@ -250,7 +250,7 @@ func (h *Handler) AddCard() http.HandlerFunc {
 			return
 		}
 
-		// Разбираем сообщение
+		// check message
 		var cardData models.Card
 		err = json.Unmarshal(reqBody, &cardData)
 		if err != nil {
@@ -273,10 +273,10 @@ func (h *Handler) AddCard() http.HandlerFunc {
 	}
 }
 
-// DeleteCard удалить карту по пользователю и идентификатору
+// DeleteCard delete a card by user and ID
 // @Tags Delete
-// @Summary Удаление карты
-// @Description Удаление выполняется по уникальной паре Ид пользователя + Ид карты.
+// @Summary Deleting a card
+// @Description Deletion is performed using a unique pair of User ID + Card ID.
 // @ID delCard
 // @Produce plain
 // @Param id path string true "Card ID"
@@ -288,7 +288,7 @@ func (h *Handler) DeleteCard() http.HandlerFunc {
 		cardID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
-		// Удаляем логин
+		// delete login
 		err := h.store.DeleteCard(r.Context(), user.UserID, cardID)
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
@@ -301,10 +301,10 @@ func (h *Handler) DeleteCard() http.HandlerFunc {
 	}
 }
 
-// Login вернуть данные конкретного логина
+// Login return specific login data
 // @Tags Read
-// @Summary Возвращает данные по логину пользователя
-// @Description на вход rest url на выход json значение
+// @Summary Returns user login data
+// @Description input rest URL, output JSON value
 // @ID readLogin
 // @Produce json
 // @Param id path string true "Login ID"
@@ -317,7 +317,7 @@ func (h *Handler) Login() http.HandlerFunc {
 		loginID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
-		// Запрашиваем инфу по логину
+		// Requesting login information
 		targetLogin, err := h.store.Login(r.Context(), user.UserID, loginID)
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
@@ -341,10 +341,10 @@ func (h *Handler) Login() http.HandlerFunc {
 	}
 }
 
-// AddLogin зарегистрировать новый логин
+// AddLogin register a new login
 // @Tags Add
-// @Summary Регистрация нового логина
-// @Description Регистрация выполняется по уникальной паре Ид пользователя + Ид карты.
+// @Summary Registering a new login
+// @Description Registration is performed using a unique pair of User ID + Card ID.
 // @ID addLogin
 // @Accept json
 // @Produce plain
@@ -364,7 +364,7 @@ func (h *Handler) AddLogin() http.HandlerFunc {
 			return
 		}
 
-		// Разбираем сообщение
+		// parse message
 		var loginData models.Login
 		err = json.Unmarshal(reqBody, &loginData)
 		if err != nil {
@@ -387,10 +387,10 @@ func (h *Handler) AddLogin() http.HandlerFunc {
 	}
 }
 
-// DeleteLogin удалить логин по пользователю и идентификатору
+// DeleteLogin delete a login by user and ID
 // @Tags Delete
-// @Summary Удаление логина
-// @Description Удаление выполняется по уникальной паре Ид пользователя + Ид карты.
+// @Summary Deleting a login
+// @Description Deletion is performed using a unique pair of User ID + Card ID.
 // @ID delLogin
 // @Produce plain
 // @Param id path string true "Login ID"
@@ -402,7 +402,7 @@ func (h *Handler) DeleteLogin() http.HandlerFunc {
 		loginID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
-		// Удаляем логин
+		// delete login
 		err := h.store.DeleteLogin(r.Context(), user.UserID, loginID)
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
@@ -415,10 +415,10 @@ func (h *Handler) DeleteLogin() http.HandlerFunc {
 	}
 }
 
-// Text вернуть данные по конкретному тексту
+// Text return specific text data
 // @Tags Read
-// @Summary Возвращает данные по логину пользователя
-// @Description на вход rest url на выход json значение
+// @Summary Returns user text data
+// @Description input rest URL, output JSON value
 // @ID readText
 // @Produce json
 // @Param id path string true "Text ID"
@@ -431,7 +431,7 @@ func (h *Handler) Text() http.HandlerFunc {
 		textID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
-		// Запрашиваем инфу по текстовым данным
+		// Requesting text data information
 		targetText, err := h.store.Text(r.Context(), user.UserID, textID)
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
@@ -455,10 +455,10 @@ func (h *Handler) Text() http.HandlerFunc {
 	}
 }
 
-// AddText зарегистрировать новый текст по пользователю и идентификатору
+// AddText register a new text by user and ID
 // @Tags Add
-// @Summary Регистрация нового текста
-// @Description Регистрация выполняется по уникальной паре Ид пользователя + Ид карты.
+// @Summary Registering a new text
+// @Description Registration is performed using a unique pair of User ID + Card ID.
 // @ID addText
 // @Accept json
 // @Produce plain
@@ -478,7 +478,7 @@ func (h *Handler) AddText() http.HandlerFunc {
 			return
 		}
 
-		// Разбираем сообщение
+		// parse message
 		var textData models.Text
 		err = json.Unmarshal(reqBody, &textData)
 		if err != nil {
@@ -501,10 +501,10 @@ func (h *Handler) AddText() http.HandlerFunc {
 	}
 }
 
-// DeleteText текст по пользователю и идентификатору
+// DeleteText delete text by user and ID
 // @Tags Delete
-// @Summary Удаление текста
-// @Description Удаление выполняется по уникальной паре Ид пользователя + Ид карты.
+// @Summary Deleting text
+// @Description Deletion is performed using a unique pair of User ID + Card ID.
 // @ID delText
 // @Produce plain
 // @Param id path string true "Text ID"
@@ -516,7 +516,7 @@ func (h *Handler) DeleteText() http.HandlerFunc {
 		textID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
-		// Удаляем текст
+		// delete text
 		err := h.store.DeleteText(r.Context(), user.UserID, textID)
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
@@ -529,10 +529,10 @@ func (h *Handler) DeleteText() http.HandlerFunc {
 	}
 }
 
-// Binary вернуть данные конкретных бинарных данных
+// Binary return specific binary data
 // @Tags Read
-// @Summary Возвращает данные по логину пользователя
-// @Description на вход rest url на выход json значение
+// @Summary Returns user binary data
+// @Description input rest URL, output JSON value
 // @ID readBinary
 // @Produce json
 // @Param id path string true "Binary ID"
@@ -545,7 +545,7 @@ func (h *Handler) Binary() http.HandlerFunc {
 		binID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
-		// Запрашиваем инфу по бинарным
+		// Requesting binary data information
 		targetBin, err := h.store.Binary(r.Context(), user.UserID, binID)
 		if err != nil {
 			if errors.Is(err, pgx.ErrNoRows) {
@@ -569,10 +569,10 @@ func (h *Handler) Binary() http.HandlerFunc {
 	}
 }
 
-// AddBinary зарегистрировать бинарные данные по пользователю и идентификатору
+// AddBinary register binary data by user and ID
 // @Tags Add
-// @Summary Регистрация нового набора бинарных данных
-// @Description Регистрация выполняется по уникальной паре Ид пользователя + Ид карты.
+// @Summary Registering a new set of binary data
+// @Description Registration is performed using a unique pair of User ID + Card ID.
 // @ID addBinary
 // @Accept json
 // @Produce plain
@@ -592,7 +592,7 @@ func (h *Handler) AddBinary() http.HandlerFunc {
 			return
 		}
 
-		// Разбираем сообщение
+		// parse message
 		var binData models.Binary
 		err = json.Unmarshal(reqBody, &binData)
 		if err != nil {
@@ -603,7 +603,7 @@ func (h *Handler) AddBinary() http.HandlerFunc {
 
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
-		// Запрашиваем инфу по бинарным
+		// Requesting binary data information
 		err = h.store.AddBinary(r.Context(), user.UserID, binData)
 		if err != nil {
 			rw.WriteHeader(http.StatusConflict)
@@ -616,10 +616,10 @@ func (h *Handler) AddBinary() http.HandlerFunc {
 	}
 }
 
-// DeleteBinary удалить бинарные данные по пользователю и идентификатору
+// DeleteBinary delete binary data by user and ID
 // @Tags Delete
-// @Summary Удаление бинарных данных
-// @Description Удаление выполняется по уникальной паре Ид пользователя + Ид карты.
+// @Summary Deleting binary data
+// @Description Deletion is performed using a unique pair of User ID + Card ID.
 // @ID delBinary
 // @Produce plain
 // @Param id path string true "Binary ID"
@@ -631,7 +631,7 @@ func (h *Handler) DeleteBinary() http.HandlerFunc {
 		binID := chi.URLParam(r, "id")
 		user := r.Context().Value(auth.UserContextKey{}).(*models.User)
 
-		// Удаляем бинарь
+		// delete binary data
 		err := h.store.DeleteBinary(r.Context(), user.UserID, binID)
 		if err != nil {
 			rw.WriteHeader(http.StatusInternalServerError)
