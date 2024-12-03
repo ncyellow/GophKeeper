@@ -6,7 +6,7 @@ import (
 	"github.com/ncyellow/GophKeeper/internal/models"
 )
 
-// Storage describes the interface for writing and reading to the database, similar to the HTTP API
+// Storage описываем интерфейс для записи и чтения в бд, аналогичен HTTP API
 type Storage interface {
 	Register(ctx context.Context, user models.User) (int64, error)
 	UserByLogin(ctx context.Context, login string) (*models.User, error)
