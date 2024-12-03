@@ -1,4 +1,4 @@
-// Package config реализует необходимые структуры и парсинг конфигурации сервера
+// Package config implements the necessary structures and parsing for server configuration
 package config
 
 import (
@@ -12,7 +12,7 @@ var (
 	BuildDate    = "N/A"
 )
 
-// Config структура для работы с конфигурацией сервера
+// Config structure for working with server configuration
 type Config struct {
 	Address      string `env:"RUN_ADDRESS"`
 	GRPCAddress  string `env:"GRPC_ADDRESS"`
@@ -22,7 +22,7 @@ type Config struct {
 	CryptoKey    string `env:"CRYPTO_KEY"`
 }
 
-// ParseConfig парсинг ENV + командной строки для чтения конфигурации
+// ParseConfig parsing ENV + command line for reading configuration
 func ParseConfig() (*Config, error) {
 	var cfg Config
 
@@ -32,10 +32,10 @@ func ParseConfig() (*Config, error) {
 	flag.StringVar(&cfg.CryptoCrt, "crypto-crt", "", "*.crt filepath for tls")
 	flag.StringVar(&cfg.CryptoKey, "crypto-key", "", "*.key filepath for tls")
 
-	// Сначала парсим командную строку
+	// First, we parse the command line
 	flag.Parse()
 
-	// Далее приоритетно аргументы из ENV
+	// Next, prioritize arguments from ENV
 	err := env.Parse(&cfg)
 	if err != nil {
 		return nil, err
