@@ -1,4 +1,4 @@
-// Package server содержит реализацию сервера нашего хранилища данных. Содержит дле реализации grpc и https
+// Package server contains the implementation of our data storage server. It includes implementations for both grpc and https
 package server
 
 import (
@@ -7,16 +7,16 @@ import (
 	"github.com/ncyellow/GophKeeper/internal/server/httpserver"
 )
 
-// Server интерфейс который должен реализовать сервер
+// Server interface that the server must implement
 type Server interface {
 	Run() error
 }
 
-// CreateServer - factory function которая выбирает имплементацию сервера по параметрам
+// CreateServer - factory function that selects the server implementation based on parameters
 func CreateServer(conf *config.Config) Server {
-	// По дефолту у нас http, только если задан GRPCAddress entrypoint, мы переходим на grpc
+	// By default, we use http, only if the GRPCAddress entrypoint is specified, we switch to grpc
 	if conf.GRPCAddress != "" {
-		// устанавливаем соединение с сервером
+		// establish a connection to the server
 		return &gprcserver.GRPCServer{
 			Conf: conf,
 		}
