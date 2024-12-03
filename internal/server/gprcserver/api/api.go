@@ -1,4 +1,5 @@
-// Package api. Реализует UnimplementedGophKeeperServerServer, те все серверное взаимодействие
+// Package api. Implements UnimplementedGophKeeperServerServer, i.e., all server interactions
+
 package api
 
 import (
@@ -17,15 +18,15 @@ import (
 	"github.com/ncyellow/GophKeeper/internal/server/storage"
 )
 
-// GRPCServer структура для реализации grpc сервера. Для https сервера я делал полное тестирование.
-// Потому тут я повторяться не буду и второй раз тестировать тоже самое не буду
+// GRPCServer structure for implementing a grpc server. I have done full testing for the https server.
+// Therefore, I will not repeat myself and will not test the same thing a second time.
 type GRPCServer struct {
 	proto2.UnimplementedGophKeeperServerServer
 	conf *config.Config
 	repo storage.Storage
 }
 
-// NewServer конструктор
+// NewServer constructor
 func NewServer(repo storage.Storage, conf *config.Config) *GRPCServer {
 	return &GRPCServer{
 		repo: repo,
@@ -33,7 +34,7 @@ func NewServer(repo storage.Storage, conf *config.Config) *GRPCServer {
 	}
 }
 
-// Register регистрация пользователя
+// Register user registration
 func (s *GRPCServer) Register(ctx context.Context, req *proto2.RegisterRequest) (*proto2.RegisterResponse, error) {
 	login := req.GetLogin()
 	originalPassword := req.GetPassword()
@@ -47,7 +48,7 @@ func (s *GRPCServer) Register(ctx context.Context, req *proto2.RegisterRequest) 
 		Password: hashPwd,
 	}
 
-	// Выполняем попытку регистрации
+	// Performing registration attempt
 	_, err := s.repo.Register(ctx, user)
 	if err != nil {
 		return nil, status.Error(codes.AlreadyExists, "")
@@ -63,7 +64,7 @@ func (s *GRPCServer) Register(ctx context.Context, req *proto2.RegisterRequest) 
 	}, nil
 }
 
-// SignIn аутентификация
+// SignIn authentication
 func (s *GRPCServer) SignIn(ctx context.Context, req *proto2.RegisterRequest) (*proto2.RegisterResponse, error) {
 	login := req.GetLogin()
 	originalPassword := req.GetPassword()
@@ -87,7 +88,7 @@ func (s *GRPCServer) SignIn(ctx context.Context, req *proto2.RegisterRequest) (*
 	}, nil
 }
 
-// AddCard зарегистрировать новую карту
+// AddCard register a new card
 func (s *GRPCServer) AddCard(ctx context.Context, req *proto2.AddCardRequest) (*proto2.AddCardResponse, error) {
 	var response proto2.AddCardResponse
 	card := *req.GetCard()
@@ -106,7 +107,7 @@ func (s *GRPCServer) AddCard(ctx context.Context, req *proto2.AddCardRequest) (*
 	return &response, nil
 }
 
-// AddLogin зарегистрировать новый логин
+// AddLogin register a new login
 func (s *GRPCServer) AddLogin(ctx context.Context, req *proto2.AddLoginRequest) (*proto2.AddLoginResponse, error) {
 	var response proto2.AddLoginResponse
 	login := *req.GetLogin()
@@ -123,7 +124,7 @@ func (s *GRPCServer) AddLogin(ctx context.Context, req *proto2.AddLoginRequest) 
 	return &response, nil
 }
 
-// AddText зарегистрировать новый текст по пользователю и идентификатору
+// AddText register a new text by user and ID
 func (s *GRPCServer) AddText(ctx context.Context, req *proto2.AddTextRequest) (*proto2.AddTextResponse, error) {
 	var response proto2.AddTextResponse
 	text := *req.GetText()
@@ -139,7 +140,7 @@ func (s *GRPCServer) AddText(ctx context.Context, req *proto2.AddTextRequest) (*
 	return &response, nil
 }
 
-// AddBinary зарегистрировать бинарные данные по пользователю и идентификатору
+// AddBinary register binary data by user and ID
 func (s *GRPCServer) AddBinary(ctx context.Context, req *proto2.AddBinRequest) (*proto2.AddBinResponse, error) {
 	var response proto2.AddBinResponse
 	text := *req.GetBinary()
@@ -155,7 +156,7 @@ func (s *GRPCServer) AddBinary(ctx context.Context, req *proto2.AddBinRequest) (
 	return &response, nil
 }
 
-// Card вернуть данные конкретной карты
+// Card return specific card data
 func (s *GRPCServer) Card(ctx context.Context, req *proto2.CardRequest) (*proto2.CardResponse, error) {
 	cardID := req.GetId()
 	userID := req.GetUser()
@@ -178,7 +179,7 @@ func (s *GRPCServer) Card(ctx context.Context, req *proto2.CardRequest) (*proto2
 	}, nil
 }
 
-// Login вернуть данные по конкретному логину
+// Login return specific login data
 func (s *GRPCServer) Login(ctx context.Context, req *proto2.LoginRequest) (*proto2.LoginResponse, error) {
 	loginID := req.GetId()
 	userID := req.GetUser()
@@ -199,7 +200,7 @@ func (s *GRPCServer) Login(ctx context.Context, req *proto2.LoginRequest) (*prot
 	}, nil
 }
 
-// Text вернуть данные по конкретному тексту
+// Text return specific text data
 func (s *GRPCServer) Text(ctx context.Context, req *proto2.TextRequest) (*proto2.TextResponse, error) {
 	textID := req.GetId()
 	userID := req.GetUser()
@@ -219,7 +220,7 @@ func (s *GRPCServer) Text(ctx context.Context, req *proto2.TextRequest) (*proto2
 	}, nil
 }
 
-// Binary вернуть данные конкретных бинарных данных
+// Binary return specific binary data
 func (s *GRPCServer) Binary(ctx context.Context, req *proto2.BinRequest) (*proto2.BinResponse, error) {
 	binID := req.GetId()
 	userID := req.GetUser()
@@ -239,7 +240,7 @@ func (s *GRPCServer) Binary(ctx context.Context, req *proto2.BinRequest) (*proto
 	}, nil
 }
 
-// DeleteCard удалить карту по пользователю и идентификатору
+// DeleteCard delete card by user and ID
 func (s *GRPCServer) DeleteCard(ctx context.Context, req *proto2.DeleteCardRequest) (*proto2.DeleteCardResponse, error) {
 	var response proto2.DeleteCardResponse
 	dataID := req.GetId()
@@ -251,7 +252,7 @@ func (s *GRPCServer) DeleteCard(ctx context.Context, req *proto2.DeleteCardReque
 	return &response, nil
 }
 
-// DeleteLogin удалить логин по пользователю и идентификатору
+// DeleteLogin delete login by user and ID
 func (s *GRPCServer) DeleteLogin(ctx context.Context, req *proto2.DeleteLoginRequest) (*proto2.DeleteLoginResponse, error) {
 	var response proto2.DeleteLoginResponse
 	dataID := req.GetId()
@@ -263,7 +264,7 @@ func (s *GRPCServer) DeleteLogin(ctx context.Context, req *proto2.DeleteLoginReq
 	return &response, nil
 }
 
-// DeleteText текст по пользователю и идентификатору
+// DeleteText delete text by user and ID
 func (s *GRPCServer) DeleteText(ctx context.Context, req *proto2.DeleteTextRequest) (*proto2.DeleteTextResponse, error) {
 	var response proto2.DeleteTextResponse
 	dataID := req.GetId()
@@ -275,7 +276,7 @@ func (s *GRPCServer) DeleteText(ctx context.Context, req *proto2.DeleteTextReque
 	return &response, nil
 }
 
-// DeleteBinary удалить бинарные данные по пользователю и идентификатору
+// DeleteBinary delete binary data by user and ID
 func (s *GRPCServer) DeleteBinary(ctx context.Context, req *proto2.DeleteBinRequest) (*proto2.DeleteBinResponse, error) {
 	var response proto2.DeleteBinResponse
 	dataID := req.GetId()
