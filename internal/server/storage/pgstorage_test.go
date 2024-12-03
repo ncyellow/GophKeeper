@@ -14,20 +14,20 @@ import (
 	"github.com/ncyellow/GophKeeper/internal/models"
 )
 
-// PgStorageSuite - тесты работы с базой
-// Используем pgxpoolmock.MockPgxPool для mock
+// PgStorageSuite - tests for database operations
+// Using pgxpoolmock.MockPgxPool for mocking
 type PgStorageSuite struct {
 	suite.Suite
 	mockPool *pgxpoolmock.MockPgxPool
 	store    Storage
 }
 
-// TestPgStorageSuite запуск всех тестов PgStorageSuite
+// TestPgStorageSuite runs all tests of PgStorageSuite
 func TestPgStorageSuite(t *testing.T) {
 	suite.Run(t, new(PgStorageSuite))
 }
 
-// SetupTest инициализация. Создаем. Repository, Storage и мокаем базу
+// SetupTest initialization. Creating repository, storage, and mocking the database
 func (suite *PgStorageSuite) SetupTest() {
 	ctrl := gomock.NewController(suite.T())
 	defer ctrl.Finish()
@@ -44,7 +44,7 @@ func (suite *PgStorageSuite) TestRegister() {
 		Password: "pwd",
 	}
 
-	//! Тест на корректную вставку
+	// Test for correct insertion
 	columns := []string{"id"}
 	pgxRows := pgxpoolmock.NewRows(columns).AddRow(user.UserID).ToPgxRows()
 	pgxRows.Next()
@@ -58,7 +58,7 @@ func (suite *PgStorageSuite) TestRegister() {
 	assert.Equal(suite.T(), userID, user.UserID)
 	assert.NoError(suite.T(), err)
 
-	//! Тест на вставку с конфликтами
+	// Test for insertion with conflicts
 	columns = []string{"id"}
 	pgxRows = pgxpoolmock.
 		NewRows(columns).
@@ -85,7 +85,7 @@ func (suite *PgStorageSuite) TestUser() {
 		Password: "pwd",
 	}
 
-	//! Тест на корректную вставку
+	// Test for correct insertion
 	columns := []string{"@users", "login", "password"}
 	pgxRows := pgxpoolmock.NewRows(columns).AddRow(newID, user.Login, user.Password).ToPgxRows()
 	pgxRows.Next()
@@ -99,7 +99,7 @@ func (suite *PgStorageSuite) TestUser() {
 	assert.Equal(suite.T(), *resultUser, user)
 	assert.NoError(suite.T(), err)
 
-	//! Тест на вставку с конфликтами
+	// Test for insertion with conflicts
 	pgxRows = pgxpoolmock.
 		NewRows(columns).
 		AddRow(newID, user.Login, user.Password).
@@ -124,7 +124,7 @@ func (suite *PgStorageSuite) TestUserByLogin() {
 		Login:  "login",
 	}
 
-	//! Тест на корректную вставку
+	// Test for correct insertion
 	columns := []string{"@users", "login"}
 	pgxRows := pgxpoolmock.NewRows(columns).AddRow(userID, user.Login).ToPgxRows()
 	pgxRows.Next()
@@ -138,7 +138,7 @@ func (suite *PgStorageSuite) TestUserByLogin() {
 	assert.Equal(suite.T(), *resultUser, user)
 	assert.NoError(suite.T(), err)
 
-	//! Тест когда не найден пользователь
+	// Test when user is not found
 	pgxRows = pgxpoolmock.
 		NewRows(columns).
 		AddRow(userID, user.Login).
@@ -167,7 +167,6 @@ func (suite *PgStorageSuite) TestAddCard() {
 		MetaInfo: "metainfo",
 	}
 
-	//! Тест на корректную вставку
 	columns := []string{"id"}
 	pgxRows := pgxpoolmock.NewRows(columns).
 		AddRow(int64(1)).ToPgxRows()
@@ -182,7 +181,7 @@ func (suite *PgStorageSuite) TestAddCard() {
 	err := suite.store.AddCard(context.Background(), userID, card)
 	assert.NoError(suite.T(), err)
 
-	//! Тест на ошибки sql
+	// Test for SQL errors
 	targetErr := errors.New("some error")
 	pgxRows = pgxpoolmock.NewRows(columns).
 		AddRow(int64(1)).
@@ -228,7 +227,7 @@ func (suite *PgStorageSuite) TestCard() {
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), *targetCard, card)
 
-	//! Тест на ошибки sql
+	// Test for SQL errors
 	targetErr := errors.New("some error")
 	pgxRows = pgxpoolmock.NewRows(columns).
 		AddRow(card.ID, userID, card.FIO, card.Number, card.Date, card.CVV, card.MetaInfo).
@@ -271,7 +270,6 @@ func (suite *PgStorageSuite) TestAddLogin() {
 		MetaInfo: "metainfo",
 	}
 
-	//! Тест на корректную вставку
 	columns := []string{"id"}
 	pgxRows := pgxpoolmock.NewRows(columns).
 		AddRow(int64(1)).ToPgxRows()
@@ -286,7 +284,7 @@ func (suite *PgStorageSuite) TestAddLogin() {
 	err := suite.store.AddLogin(context.Background(), userID, login)
 	assert.NoError(suite.T(), err)
 
-	//! Тест на ошибки sql
+	// Test for SQL errors
 	targetErr := errors.New("some error")
 	pgxRows = pgxpoolmock.NewRows(columns).
 		AddRow(int64(1)).
@@ -330,7 +328,7 @@ func (suite *PgStorageSuite) TestLogin() {
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), *targetLogin, login)
 
-	//! Тест на ошибки sql
+	// Test for SQL errors
 	targetErr := errors.New("some error")
 	pgxRows = pgxpoolmock.NewRows(columns).
 		AddRow(login.ID, userID, login.Login, login.Password, login.MetaInfo).
@@ -372,7 +370,6 @@ func (suite *PgStorageSuite) TestAddText() {
 		MetaInfo: "metainfo",
 	}
 
-	//! Тест на корректную вставку
 	columns := []string{"id"}
 	pgxRows := pgxpoolmock.NewRows(columns).
 		AddRow(int64(1)).ToPgxRows()
@@ -387,7 +384,7 @@ func (suite *PgStorageSuite) TestAddText() {
 	err := suite.store.AddText(context.Background(), userID, text)
 	assert.NoError(suite.T(), err)
 
-	//! Тест на ошибки sql
+	// Test for SQL errors
 	targetErr := errors.New("some error")
 	pgxRows = pgxpoolmock.NewRows(columns).
 		AddRow(int64(1)).
@@ -414,7 +411,6 @@ func (suite *PgStorageSuite) TestText() {
 		MetaInfo: "metainfo",
 	}
 
-	//! Тест на корректную вставку
 	columns := []string{"id", "user", "content", "metainfo"}
 	pgxRows := pgxpoolmock.NewRows(columns).
 		AddRow(text.ID, userID, text.Content, text.MetaInfo).ToPgxRows()
@@ -431,7 +427,7 @@ func (suite *PgStorageSuite) TestText() {
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), *targetBin, text)
 
-	//! Тест на ошибки sql
+	// Test for SQL errors
 	targetErr := errors.New("some error")
 	pgxRows = pgxpoolmock.NewRows(columns).
 		AddRow(text.ID, userID, text.Content, text.MetaInfo).
@@ -473,7 +469,6 @@ func (suite *PgStorageSuite) TestAddBinary() {
 		MetaInfo: "metainfo",
 	}
 
-	//! Тест на корректную вставку
 	columns := []string{"id"}
 	pgxRows := pgxpoolmock.NewRows(columns).
 		AddRow(int64(1)).ToPgxRows()
@@ -488,7 +483,7 @@ func (suite *PgStorageSuite) TestAddBinary() {
 	err := suite.store.AddBinary(context.Background(), userID, bin)
 	assert.NoError(suite.T(), err)
 
-	//! Тест на ошибки sql
+	// Test for SQL errors
 	targetErr := errors.New("some error")
 	pgxRows = pgxpoolmock.NewRows(columns).
 		AddRow(int64(1)).
@@ -515,7 +510,6 @@ func (suite *PgStorageSuite) TestBinary() {
 		MetaInfo: "metainfo",
 	}
 
-	//! Тест на корректную вставку
 	columns := []string{"id", "user", "content", "metainfo"}
 	pgxRows := pgxpoolmock.NewRows(columns).
 		AddRow(bin.ID, userID, bin.Data, bin.MetaInfo).ToPgxRows()
@@ -532,7 +526,7 @@ func (suite *PgStorageSuite) TestBinary() {
 	assert.NoError(suite.T(), err)
 	assert.Equal(suite.T(), *targetBin, bin)
 
-	//! Тест на ошибки sql
+	// Test for SQL errors
 	targetErr := errors.New("some error")
 	pgxRows = pgxpoolmock.NewRows(columns).
 		AddRow(bin.ID, userID, bin.Data, bin.MetaInfo).
