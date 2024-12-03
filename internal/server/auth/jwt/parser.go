@@ -1,7 +1,7 @@
 package jwt
 
-// Parser интерфейс, который мы используем для проверки jwt токена на корректность.
-// Нужен нам для того, чтобы тестировать авторизацию через gomock
+// Parser interface, which we use to verify the correctness of the jwt token.
+// It is needed for testing authorization through gomock
 type Parser interface {
 	ParseToken(accessToken string, signingKey []byte) (string, error)
 }
