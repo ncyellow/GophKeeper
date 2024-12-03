@@ -1,4 +1,4 @@
-// Package auth Предоставляет возможность функционал JWT аутентификации + middleware для его работы
+// Package auth Provides functionality for JWT authentication + middleware to support its operation
 package auth
 
 import (
@@ -10,10 +10,10 @@ import (
 	"github.com/ncyellow/GophKeeper/internal/server/storage"
 )
 
-// UserContextKey для доступа в контексте данных авторизованного пользователя
+// UserContextKey for accessing authorized user data in context
 type UserContextKey struct{}
 
-// Auth - middleware проверка токена и если все ок проверяем наличие в базе.
+// Auth - middleware checks the token and if all is well, verifies its presence in the database.
 func Auth(store storage.Storage, conf *config.Config, parser jwt.Parser) func(http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -25,8 +25,7 @@ func Auth(store storage.Storage, conf *config.Config, parser jwt.Parser) func(ht
 			}
 
 			user, err := store.UserByLogin(r.Context(), login)
-			// Если все ок, но по каким-то причинам пользователя в базе нет - тоже не авторизован. Я бы воткнул редис,
-			// но чем богаты тем и рады
+			// If all is well, but for some reason the user is not in the database - also not authorized.
 			if err != nil {
 				w.WriteHeader(http.StatusUnauthorized)
 				return
