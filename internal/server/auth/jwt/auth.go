@@ -1,4 +1,4 @@
-// Package jwt предоставляет возможность функционал JWT аутентификации
+// Package jwt provides functionality for JWT authentication
 package jwt
 
 import (
@@ -16,22 +16,22 @@ import (
 
 var ErrInvalidToken = errors.New(`invalid token`)
 
-// Claims используем для работы с golang-jwt для подписи токена и его проверки
+// Claims used for working with golang-jwt to sign the token and verify it
 type Claims struct {
 	jwt.RegisteredClaims
 	Username string `json:"username"`
 }
 
-// Authorizer структура для проверки пользователя и выдачи токена авторизации
+// Authorizer structure for verifying the user and issuing the authorization token
 type Authorizer struct {
 	Store      storage.Storage
 	SigningKey []byte
 }
 
-// DefaultParser дефолтный парсер токенов jwt
+// DefaultParser default parser for jwt tokens
 type DefaultParser struct{}
 
-// SignIn - проверяет есть ли такой пользователь в базе и генерируем токен
+// SignIn - checks if such a user exists in the database and generates a token
 func (a *Authorizer) SignIn(ctx context.Context, user *models.User) (string, error) {
 	expirationDuration := time.Hour * 24
 	pwd := sha1.New()
@@ -53,7 +53,7 @@ func (a *Authorizer) SignIn(ctx context.Context, user *models.User) (string, err
 	return token.SignedString(a.SigningKey)
 }
 
-// ParseToken - проверяем является ли токен корректным, если да возвращаем логин данного пользователя
+// ParseToken - checks if the token is valid, if yes returns the login of this user
 func (p *DefaultParser) ParseToken(accessToken string, signingKey []byte) (string, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
