@@ -1,4 +1,4 @@
-// Package gprcserver содержит имплементацию сервера через grpc
+// Package gprcserver contains the implementation of the server via gRPC
 package gprcserver
 
 import (
@@ -16,14 +16,14 @@ import (
 	"github.com/ncyellow/GophKeeper/internal/server/storage"
 )
 
-// GRPCServer структура сервера. Реализует интерфейс Server
+// GRPCServer server structure. Implements the Server interface
 type GRPCServer struct {
 	Conf *config.Config
 }
 
-// Run блокирующая функция запуска сервера.
-// После запуска встает в ожидание os.Interrupt, syscall.SIGINT, syscall.SIGTERM
-// Функция очень похожа на RunServer из http реализации, но тут другой вариант graceful shutdown.
+// Run blocking function for server startup.
+// After startup, it waits for os.Interrupt, syscall.SIGINT, syscall.SIGTERM
+// The function is very similar to RunServer from the http implementation, but here is a different variant of graceful shutdown.
 func (s *GRPCServer) Run() error {
 	store, err := storage.NewPgStorage(s.Conf)
 	if err != nil {
@@ -36,11 +36,11 @@ func (s *GRPCServer) Run() error {
 	}
 
 	grpcServer := grpc.NewServer()
-	// регистрируем сервис
+	// register service
 	proto.RegisterGophKeeperServerServer(grpcServer, api.NewServer(store, s.Conf))
 
 	defer func() {
-		// гасим сервер через GracefulStop
+		// shutting down the server via GracefulStop
 		grpcServer.GracefulStop()
 	}()
 
