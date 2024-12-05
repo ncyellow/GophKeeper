@@ -14,7 +14,7 @@ import (
 	proto2 "github.com/ncyellow/GophKeeper/internal/proto"
 )
 
-// GRPCSender структура grpc клиента. Реализует интерфейс Sender. Все комментарий по соотв. методам см там.
+// GRPCSender structure of the grpc client. Implements the Sender interface. See the respective methods for all comments.
 type GRPCSender struct {
 	conn   *grpc.ClientConn
 	client proto2.GophKeeperServerClient
@@ -22,9 +22,9 @@ type GRPCSender struct {
 	userID *int64
 }
 
-// NewGRPCSender конструктор
+// NewGRPCSender constructor
 func NewGRPCSender(conf *config.Config) (*GRPCSender, error) {
-	// устанавливаем соединение с сервером
+	// establish a connection to the server
 	conn, err := grpc.Dial(conf.GRPCAddress, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err

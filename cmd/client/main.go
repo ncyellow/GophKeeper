@@ -1,4 +1,4 @@
-// Package main содержит запуск клиента.
+// Package main contains the client launch.
 package main
 
 import (

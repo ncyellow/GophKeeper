@@ -1,42 +1,42 @@
-// Package api модуль реализует client для взаимодействия с сервером. Представлены для варианта grpc и https.
+// Package api implements a client for interacting with the server. It provides both grpc and https variants.
 package api
 
 import (
 	"github.com/ncyellow/GophKeeper/internal/models"
 )
 
-// Sender всякий клиент для работы с сервером должен реализовывать такой интерфейс
+// Sender any client for working with the server should implement this interface
 type Sender interface {
-	// Register запрос на сервер по регистрации клиента
+	// Register request to the server for client registration
 	Register(login string, pwd string) error
-	// SignIn запрос на сервер по авторизации клиента
+	// SignIn request to the server for client authorization
 	SignIn(login string, pwd string) error
 
-	// AddCard запрос добавления новой карты
+	// AddCard request to add a new card
 	AddCard(card *models.Card) error
-	// Card запрос на чтение уже существующей по ид карты
+	// Card request to read an existing card by id
 	Card(cardID string) (*models.Card, error)
-	// DelCard запрос на удаление уже существующей по ид карты
+	// DelCard request to delete an existing card by id
 	DelCard(cardID string) error
 
-	// AddLogin запрос добавления нового логина
+	// AddLogin request to add a new login
 	AddLogin(login *models.Login) error
-	// Login запрос на чтение уже существующего логина по ид
+	// Login request to read an existing login by id
 	Login(loginID string) (*models.Login, error)
-	// DelLogin запрос на удаление уже существующего логина по ид
+	// DelLogin request to delete an existing login by id
 	DelLogin(loginID string) error
 
-	// AddText запрос на чтение уже существующего текста по ид
+	// AddText request to add new text content
 	AddText(text *models.Text) error
-	// Text запрос на чтение уже существующего текста по ид
+	// Text request to read existing text content by id
 	Text(textID string) (*models.Text, error)
-	// DelText запрос на удаление уже существующего текста по ид
+	// DelText request to delete existing text content by id
 	DelText(textID string) error
 
-	// AddBin запрос на добавление уже существующих бинарных данных по ид
+	// AddBin request to add new binary data
 	AddBin(binary *models.Binary) error
-	// Bin запрос на чтение уже существующего бинарных данных по ид
+	// Bin request to read existing binary data by id
 	Bin(binID string) (*models.Binary, error)
-	// DelBin запрос на удаление уже существующих бинарных данных по ид
+	// DelBin request to delete existing binary data by id
 	DelBin(binID string) error
 }

@@ -4,11 +4,11 @@ import (
 	"github.com/ncyellow/GophKeeper/internal/client/config"
 )
 
-// CreateSender функция создает либо клиент https либо grpc по настройкам
+// CreateSender function creates either an https or grpc client based on the settings
 func CreateSender(conf *config.Config) (Sender, error) {
-	// По дефолту у нас https, только если задан GRPCAddress entrypoint, мы переходим на grpc
+	// By default, we use https, only if the GRPCAddress entrypoint is specified, we switch to grpc
 	if conf.GRPCAddress != "" {
-		// устанавливаем соединение с сервером
+		// establish a connection to the server
 		return NewGRPCSender(conf)
 	}
 	return NewHTTPSender(conf)

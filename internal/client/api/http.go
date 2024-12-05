@@ -14,14 +14,14 @@ import (
 	"github.com/ncyellow/GophKeeper/internal/models"
 )
 
-// HTTPSender структура http клиента. Реализует интерфейс Sender. Все комментарий по соотв. методам см там.
+// HTTPSender structure of the http client. Implements the Sender interface. See the respective methods for all comments.
 type HTTPSender struct {
 	Client    *http.Client
 	Conf      *config.Config
 	AuthToken *string
 }
 
-// NewHTTPSender конструктор http клиента
+// NewHTTPSender constructor for the http client
 func NewHTTPSender(conf *config.Config) (*HTTPSender, error) {
 	clientCertFile := conf.CryptoCrt
 	clientKeyFile := conf.CryptoKey
