@@ -2,25 +2,25 @@ package api
 
 import "errors"
 
-// Перечень ошибок которые может генерировать client при взаимодействии с сервером
-// При это часть ошибок при работе через http клиент приходит как StatusCode и ошибки нет.
-// Тогда мы генерируем ошибку, если же grpc прилетает ошибка мы ее прокидываем используя формат ошибки
+// List of errors that the client can generate when interacting with the server
+// While some errors in the http client come as StatusCode with no error message.
+// Then we generate an error, and if a grpc error occurs, we propagate it using the error format
 var (
-	FmtErrInternalServer    = "cервер недоступен, попробуйте позднее: %w"
-	FmtErrServerTimout      = "cервер недоступен, попробуйте позднее: %w"
-	FmtErrDeserialization   = "ошибка десериализации: %w"
-	FmtErrRequestPrepare    = "не удалось подготовить http запрос: %w"
-	FmtErrUserAlreadyExists = "уже зарегистрирован пользователь с таким логином: %w"
-	FmtErrUserNotFound      = "пользователь с таким логином не найден: %w"
-	FmtErrAlreadyExists     = "ID с таким идентификатором уже зарегистрирован: %w"
-	FmtErrNotFound          = "не найдена запись с таким идентификатором: %w"
-	FmtErrSerialization     = "ошибка сериализации: %w"
+	FmtErrInternalServer    = "server unavailable, please try later: %w"
+	FmtErrServerTimout      = "server unavailable, please try later: %w"
+	FmtErrDeserialization   = "deserialization error: %w"
+	FmtErrRequestPrepare    = "failed to prepare http request: %w"
+	FmtErrUserAlreadyExists = "a user with this login is already registered: %w"
+	FmtErrUserNotFound      = "a user with this login was not found: %w"
+	FmtErrAlreadyExists     = "ID with this identifier is already registered: %w"
+	FmtErrNotFound          = "record with this identifier was not found: %w"
+	FmtErrSerialization     = "serialization error: %w"
 
-	ErrSerialization     = errors.New("ошибка сериализации")
-	ErrAuthRequire       = errors.New("необходимо авторизоваться")
-	ErrUserAlreadyExists = errors.New("уже зарегистрирован пользователь с таким логином")
-	ErrInternalServer    = errors.New("cервер недоступен, попробуйте позднее")
-	ErrUserNotFound      = errors.New("пользователь с таким логином не найден")
-	ErrAlreadyExists     = errors.New("ID с таким идентификатором уже зарегистрирован")
-	ErrNotFound          = errors.New("не найдена запись с таким идентификатором")
+	ErrSerialization     = errors.New("serialization error")
+	ErrAuthRequire       = errors.New("authorization required")
+	ErrUserAlreadyExists = errors.New("a user with this login is already registered")
+	ErrInternalServer    = errors.New("server unavailable, please try later")
+	ErrUserNotFound      = errors.New("a user with this login was not found")
+	ErrAlreadyExists     = errors.New("ID with this identifier is already registered")
+	ErrNotFound          = errors.New("record with this identifier was not found")
 )
