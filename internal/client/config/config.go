@@ -1,4 +1,4 @@
-// Package config реализует необходимые структуры и парсинг конфигурации сервера
+// Package config implements the necessary structures and parsing of the server configuration
 package config
 
 import (
@@ -12,7 +12,7 @@ var (
 	BuildDate    = "N/A"
 )
 
-// Config структура для работы с конфигурацией клиента
+// Config structure for working with client configuration
 type Config struct {
 	Address     string `env:"ADDRESS"`
 	GRPCAddress string `env:"GRPC_ADDRESS"`
@@ -21,7 +21,7 @@ type Config struct {
 	CACertFile  string `env:"CA_CERT_KEY"`
 }
 
-// ParseConfig парсинг ENV и командной строки для получения конфигурации
+// ParseConfig parsing ENV and command line arguments to get the configuration
 func ParseConfig() (*Config, error) {
 	var cfg Config
 
@@ -31,10 +31,10 @@ func ParseConfig() (*Config, error) {
 	flag.StringVar(&cfg.CACertFile, "crypto-ca", "", "*.key filepath for ca")
 	flag.StringVar(&cfg.GRPCAddress, "grp-addr", ":3200", "grpc address in the format host:port")
 
-	// Сначала парсим командную строку
+	// First, we parse the command line arguments
 	flag.Parse()
 
-	// Далее приоритетно аргументы из ENV
+	// Then, we give priority to the arguments from ENV
 	err := env.Parse(&cfg)
 	if err != nil {
 		return nil, err
