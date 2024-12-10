@@ -1,4 +1,4 @@
-// Package console реализует модуль для парсинга ввода консоли
+// Package console implements the module for parsing console input
 package console
 
 import (
@@ -12,25 +12,24 @@ import (
 	"github.com/ncyellow/GophKeeper/internal/client/config"
 )
 
-// LivePrefixState вспомогательная структура для того,
-// чтобы сделать красивое приглашение с именем авторизованного пользователя
+// LivePrefixState auxiliary structure to create a nice prompt with the name of the authorized user
 var LivePrefixState struct {
 	LivePrefix string
 	IsEnable   bool
 }
 
-// changeLivePrefix спец функция для работы с приглашением ввода через библиотеку go-prompt
+// changeLivePrefix special function for working with the input prompt using the go-prompt library
 func changeLivePrefix() (string, bool) {
 	return LivePrefixState.LivePrefix, LivePrefixState.IsEnable
 }
 
-// Console структура по обработке ввода с клавиатуры. С использованием go-prompt
+// Console structure for handling keyboard input. Using go-prompt
 type Console struct {
 	Conf   *config.Config
 	Client api.Sender
 }
 
-// CreateExecutor функция обработки всех введенных с клавиатуры команд
+// CreateExecutor function for processing all commands entered from the keyboard
 func CreateExecutor(sender api.Sender) func(string) {
 	return func(t string) {
 		s := strings.TrimSpace(t)
@@ -77,29 +76,29 @@ func CreateExecutor(sender api.Sender) func(string) {
 					fmt.Println(err.Error())
 				} else {
 					fmt.Println("")
-					fmt.Printf("Карта с ID - %s успешно добавлена\n", card.ID)
+					fmt.Printf("Card with ID - %s successfully added\n", card.ID)
 				}
 			}
 		case "card":
 			if len(commands) != 2 {
-				fmt.Println("Введите номер карты!")
+				fmt.Println("Enter card number!")
 			} else {
 				card, err := sender.Card(commands[1])
 				if err != nil {
 					fmt.Println(err.Error())
 				} else {
-					fmt.Printf("Данные карты прочитаны успешно - %#v!\n", card)
+					fmt.Printf("Card data read successfully - %#v!\n", card)
 				}
 			}
 		case "card-del":
 			if len(commands) != 2 {
-				fmt.Println("Введите идентификатор карты!")
+				fmt.Println("Enter card identifier!")
 			} else {
 				err := sender.DelCard(commands[1])
 				if err != nil {
 					fmt.Println(err.Error())
 				} else {
-					fmt.Println("Карта удалена!")
+					fmt.Println("Card deleted!")
 				}
 			}
 		case "login-add":
@@ -111,29 +110,29 @@ func CreateExecutor(sender api.Sender) func(string) {
 					fmt.Println(err.Error())
 				} else {
 					fmt.Println("")
-					fmt.Printf("Логин с ID - %s успешно добавлена\n", login.ID)
+					fmt.Printf("Login with ID - %s successfully added\n", login.ID)
 				}
 			}
 		case "login":
 			if len(commands) != 2 {
-				fmt.Println("Введите идентификатор логина!")
+				fmt.Println("Enter login identifier!")
 			} else {
 				login, err := sender.Login(commands[1])
 				if err != nil {
 					fmt.Println(err.Error())
 				} else {
-					fmt.Printf("Данные логина прочитаны успешно - %#v!\n", login)
+					fmt.Printf("Login data read successfully - %#v!\n", login)
 				}
 			}
 		case "login-del":
 			if len(commands) != 2 {
-				fmt.Println("Введите идентификатор логина!")
+				fmt.Println("Enter login identifier!")
 			} else {
 				err := sender.DelLogin(commands[1])
 				if err != nil {
 					fmt.Println(err.Error())
 				} else {
-					fmt.Println("Логин удален!")
+					fmt.Println("Login deleted!")
 				}
 			}
 		case "text-add":
@@ -143,29 +142,29 @@ func CreateExecutor(sender api.Sender) func(string) {
 				if err != nil {
 					fmt.Println(err.Error())
 				} else {
-					fmt.Printf("Text с ID - %s успешно добавлена\n", text.ID)
+					fmt.Printf("Text with ID - %s successfully added\n", text.ID)
 				}
 			}
 		case "text":
 			if len(commands) != 2 {
-				fmt.Println("Введите идентификатор text!")
+				fmt.Println("Enter text identifier!")
 			} else {
 				text, err := sender.Text(commands[1])
 				if err != nil {
 					fmt.Println(err.Error())
 				} else {
-					fmt.Printf("Данные text прочитаны успешно - %#v!\n", text)
+					fmt.Printf("Text data read successfully - %#v!\n", text)
 				}
 			}
 		case "text-del":
 			if len(commands) != 2 {
-				fmt.Println("Введите идентификатор text!")
+				fmt.Println("Enter text identifier!")
 			} else {
 				err := sender.DelText(commands[1])
 				if err != nil {
 					fmt.Println(err.Error())
 				} else {
-					fmt.Println("Text удален!")
+					fmt.Println("Text deleted!")
 				}
 			}
 		case "bin-add":
@@ -177,36 +176,36 @@ func CreateExecutor(sender api.Sender) func(string) {
 					fmt.Println(err.Error())
 				} else {
 					fmt.Println("")
-					fmt.Printf("Bin с ID - %s успешно добавлена\n", bin.ID)
+					fmt.Printf("Bin with ID - %s successfully added\n", bin.ID)
 				}
 			}
 		case "bin":
 			if len(commands) != 2 {
-				fmt.Println("Введите идентификатор файла!")
+				fmt.Println("Enter file identifier!")
 			} else {
 				bin, err := sender.Bin(commands[1])
 				if err != nil {
 					fmt.Println(err.Error())
 				} else {
-					fmt.Printf("Данные bin прочитаны успешно - %#v!\n", bin)
+					fmt.Printf("Bin data read successfully - %#v!\n", bin)
 				}
 			}
 		case "bin-del":
 			if len(commands) != 2 {
-				fmt.Println("Введите идентификатор файла!")
+				fmt.Println("Enter file identifier!")
 			} else {
 				err := sender.DelBin(commands[1])
 				if err != nil {
 					fmt.Println(err.Error())
 				} else {
-					fmt.Println("Bin удален!")
+					fmt.Println("Bin deleted!")
 				}
 			}
 		}
 	}
 }
 
-// completer - реализация автодополнения
+// completer - implementation of autocompletion
 func completer(d prompt.Document) []prompt.Suggest {
 	var s []prompt.Suggest
 	if d.Text != "" {
@@ -241,7 +240,7 @@ func completer(d prompt.Document) []prompt.Suggest {
 	return prompt.FilterHasPrefix(s, d.GetWordBeforeCursor(), true)
 }
 
-// Run запуск нашей собственной консоли с приглашением
+// Run starts our own console with a prompt
 func (p *Console) Run() {
 	executor := CreateExecutor(p.Client)
 	prom := prompt.New(

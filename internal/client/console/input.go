@@ -1,4 +1,4 @@
-// Package console. Эта часть модуля реализует запрос с консоли основных сущностей, Карта, Логин, Текстовые данные и др
+// Package console. This part of the module implements requests from the console for main entities: Card, Login, Text data, etc.
 package console
 
 import (
@@ -13,7 +13,7 @@ import (
 	"github.com/ncyellow/GophKeeper/internal/models"
 )
 
-// credentials - читает с консоли логин пароль. Если все ок, то error будет nil
+// credentials - reads login and password from the console. If everything is ok, error will be nil
 func credentials() (string, string, error) {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -33,7 +33,7 @@ func credentials() (string, string, error) {
 	return strings.TrimSpace(username), strings.TrimSpace(password), nil
 }
 
-// readCard - читает с консоли данные карты. Если все ок, то error будет nil
+// readCard - reads card data from the console. If everything is ok, error will be nil
 func readCard() (*models.Card, error) {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -83,7 +83,7 @@ func readCard() (*models.Card, error) {
 	}, nil
 }
 
-// readLogin - читает с консоли данные по логину. Если все ок, то error будет nil
+// readLogin - reads login data from the console. If everything is ok, error will be nil
 func readLogin() (*models.Login, error) {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -120,7 +120,7 @@ func readLogin() (*models.Login, error) {
 	}, nil
 }
 
-// readText - читает с консоли данные по текстовым данным. Если все ок, то error будет nil
+// readText - reads text data from the console. If everything is ok, error will be nil
 func readText() (*models.Text, error) {
 	reader := bufio.NewReader(os.Stdin)
 
@@ -149,7 +149,7 @@ func readText() (*models.Text, error) {
 	}, nil
 }
 
-// readText - читает с консоли данные по бинарным данным. Если все ок, то error будет nil
+// readText - reads binary data from the console. If everything is ok, error will be nil
 func readBinary() (*models.Binary, error) {
 	reader := bufio.NewReader(os.Stdin)
 
