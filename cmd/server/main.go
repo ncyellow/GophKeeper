@@ -1,4 +1,4 @@
-// Package main содержит запуск сервера.
+// Package main contains the server launch.
 package main
 
 import (
